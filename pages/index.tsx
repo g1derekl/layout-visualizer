@@ -6,6 +6,11 @@ import React, {
   useRef
 } from 'react';
 import { Canvas } from '@react-three/fiber';
+import {
+  OrbitControls,
+  PerspectiveCamera,
+  Edges
+} from '@react-three/drei';
 
 import styles from '../styles/Home.module.css';
 
@@ -50,10 +55,8 @@ function Ball(props: JSX.IntrinsicElements['mesh']): ReactElement {
       scale={1}
     >
       <sphereGeometry args={[4.25, 128, 128]} />
-      {/* <Edges scale={1} threshold={0} color="gray" /> */}
-      <meshStandardMaterial>
-        <Labels />
-      </meshStandardMaterial>
+      <Edges scale={1} threshold={0} color="gray" />
+      <meshStandardMaterial />
     </mesh>
   );
 }
@@ -62,9 +65,11 @@ export default function Home(): ReactElement {
   return (
     <div className={styles.container}>
       <Canvas>
+        {/* <PerspectiveCamera makeDefault args={[70, 2.13, 1, 1000]} /> */}
         <ambientLight />
         <pointLight position={[10, 10, 10]} />
-        <Ball position={[0, 0, -3]} />
+        <OrbitControls target={[0, 0, -5]} />
+        <Ball position={[0, 0, -5]} />
       </Canvas>
     </div>
   );
