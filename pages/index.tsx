@@ -46,16 +46,50 @@ function Labels(): ReactElement {
   );
 }
 
-function Ball(props: JSX.IntrinsicElements['mesh']): ReactElement {
+type MarkerProps = {
+  color: string;
+  label: string;
+}
+
+function Marker(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement {
   const meshRef = useRef<THREE.Mesh>(null!);
+
+  const { color } = props as MarkerProps;
+
   return (
     <mesh
       {...props}
       ref={meshRef}
       scale={1}
     >
-      <sphereGeometry args={[4.25, 128, 128]} />
-      <Edges scale={1} threshold={0} color="gray" />
+      <circleGeometry args={[0.0625, 16]} />
+      <meshStandardMaterial color={color} />
+    </mesh>
+  );
+}
+
+function Ball(props: JSX.IntrinsicElements['mesh']): ReactElement {
+  const meshRef = useRef<THREE.Mesh>(null!);
+  const sphereRef = useRef<THREE.SphereGeometry>(null!);
+
+  // useEffect(() => {
+  //   const sphere = sphereRef.current;
+
+  //   const coords = sphere.attributes.position.array;
+
+  //   for (let i = 0; i < coords.length; i += 3) {
+  //     console.log(`(${coords[i]}, ${coords[i + 1]}, ${coords[i + 2]})`);
+  //   }
+  // }, [sphereRef]);
+
+  return (
+    <mesh
+      {...props}
+      ref={meshRef}
+      scale={1}
+    >
+      <sphereGeometry args={[4.25, 256, 128]} ref={sphereRef} />
+      {/* <Edges scale={1} threshold={0} color="gray" /> */}
       <meshStandardMaterial />
     </mesh>
   );
@@ -65,11 +99,12 @@ export default function Home(): ReactElement {
   return (
     <div className={styles.container}>
       <Canvas>
-        {/* <PerspectiveCamera makeDefault args={[70, 2.13, 1, 1000]} /> */}
+        <PerspectiveCamera makeDefault args={[50, 1920 / 900, 1, 1000]} position={[0, 0, 10]} />
         <ambientLight />
-        <pointLight position={[10, 10, 10]} />
-        <OrbitControls target={[0, 0, -5]} />
-        <Ball position={[0, 0, -5]} />
+        <Marker label="PIN" color="red" position={[0, 0, 4.25]} />
+        <Marker label="CG" color="green" position={[0, 1, 4.25]} />
+        <Ball position={[0, 0, 0]} />
+        <OrbitControls target={[0, 0, 0]} enableZoom={false} />
       </Canvas>
     </div>
   );
