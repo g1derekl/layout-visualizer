@@ -1,4 +1,6 @@
 .container {
   margin-top: 3rem;
-  height: 900px;
+  position: absolute;
+  height: 80%;
+  width: 100%;
 }

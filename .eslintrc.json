@@ -22,6 +22,14 @@
     "rules": {
       "react/jsx-filename-extension": [2, { "extensions": [".jsx", ".tsx"] }],
       "react/jsx-props-no-spreading": 0,
-      "comma-dangle": 0
+      "comma-dangle": 0,
+      "import/extensions": 0
+    },
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
     }
 }
