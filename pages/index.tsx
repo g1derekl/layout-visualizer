@@ -6,16 +6,21 @@ import React, {
   useRef,
   useState
 } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, extend } from '@react-three/fiber';
 import {
   PerspectiveCamera,
   Edges,
-  ArcballControls,
-  Text
+  ArcballControls
 } from '@react-three/drei';
 
 import styles from '../styles/Home.module.css';
 import { calcPoint } from '../src/calc/geod';
+
+const { Text } = require('troika-three-text');
+
+extend({ Text });
+
+const SHOW_EDGES = false;
 
 function Ball(props: JSX.IntrinsicElements['mesh']): ReactElement {
   const sphereRef = useRef<THREE.SphereGeometry>(null!);
@@ -26,8 +31,10 @@ function Ball(props: JSX.IntrinsicElements['mesh']): ReactElement {
       scale={1}
     >
       <sphereGeometry args={[4.25, 128, 64]} ref={sphereRef} />
-      <Edges scale={1} threshold={0} color="gray" />
-      <meshStandardMaterial transparent opacity={0.25} />
+      {
+        SHOW_EDGES && <Edges scale={1} threshold={0} color="gray" />
+      }
+      <meshStandardMaterial color="lightgray" />
     </mesh>
   );
 }
@@ -36,41 +43,6 @@ type LabelProps = {
   text: string;
   color: string;
 }
-
-// function Label({ text, color }: LabelProps): ReactElement {
-//   const elem = document.createElement('canvas');
-//   const canvasRef = useRef<HTMLCanvasElement>(elem);
-//   const textureRef = useRef<THREE.CanvasTexture>(null);
-
-//   const write = (context: CanvasRenderingContext2D): void => {
-//     context.fillStyle = 'rgba(255, 255, 255, 0.5)';
-//     context.fillRect(0, 0, 40, 20);
-//     context.fillStyle = color;
-//     context.font = '16px helvetica';
-//     context.textAlign = 'center';
-//     context.textBaseline = 'middle';
-//     context.fillText(text, 20, 10);
-//   };
-
-//   useEffect(() => {
-//     const canvas = canvasRef.current;
-//     if (canvas) {
-//       canvas.width = 40;
-//       canvas.height = 20;
-//       const context = canvas.getContext('2d')!;
-//       write(context);
-//     }
-//   }, [canvasRef]);
-
-//   return (
-//     <canvasTexture
-//       attach="map"
-//       ref={textureRef}
-//       image={canvasRef.current}
-//       needsUpdate
-//     />
-//   );
-// }
 
 type MarkerProps = {
   color: string;
@@ -121,8 +93,14 @@ function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | LabelProps): ReactE
   return (
     <mesh
       {...props}
+      ref={meshRef}
+      position={coords}
+      scale={[-1, 1, 1]}
     >
-      {/* <textGeometry args={["hello world", fontSettings]} /> */}
+      { /* @ts-ignore */ }
+      <text color={color} fontSize={0.25} text={text} anchorX="center" anchorY="middle">
+        <meshBasicMaterial side={THREE.BackSide} />
+      </text>
     </mesh>
   );
 }
