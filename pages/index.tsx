@@ -32,8 +32,8 @@ export default function Home(): ReactElement {
       <Canvas>
         <PerspectiveCamera makeDefault args={[50, aspectRatio, 1, 1000]} position={[0, 0, 12]} />
         <ambientLight />
-        <BallMarkings />
         <Ball position={[0, 0, 0]} />
+        <BallMarkings />
         <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
       </Canvas>
     </div>

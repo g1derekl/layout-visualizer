@@ -9,6 +9,8 @@ import React, {
 import { extend } from '@react-three/fiber';
 
 import { calcPoint } from '../calc/geod';
+import { PIN_COORDS } from '../calc/constants';
+import LineMarkings from './layoutMarkings';
 
 const { Text } = require('troika-three-text');
 
@@ -84,8 +86,6 @@ type BallMarkingsProps = {
   pinDistance?: number;
 }
 
-const PIN_COORDS = [0, 0, 4.25];
-
 export default function BallMarkings({ pinDistance }: BallMarkingsProps): ReactElement {
   const [cgCoords, setCgCoords] = useState<THREE.Vector3 | null>(null);
   const pinCoords = new THREE.Vector3(...PIN_COORDS);
@@ -108,6 +108,7 @@ export default function BallMarkings({ pinDistance }: BallMarkingsProps): ReactE
           <>
             <Marker key="CG" color="green" position={cgCoords} />
             <MarkingLabel text="CG" color="green" position={cgCoords} />
+            <LineMarkings pinCoords={pinCoords} cgCoords={cgCoords} />
           </>
         )
       }
