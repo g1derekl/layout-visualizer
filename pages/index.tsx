@@ -10,7 +10,8 @@ import { Canvas } from '@react-three/fiber';
 import {
   PerspectiveCamera,
   Edges,
-  ArcballControls
+  ArcballControls,
+  Text
 } from '@react-three/drei';
 
 import styles from '../styles/Home.module.css';
@@ -24,8 +25,8 @@ function Ball(props: JSX.IntrinsicElements['mesh']): ReactElement {
       {...props}
       scale={1}
     >
-      <sphereGeometry args={[4.25, 256, 128]} ref={sphereRef} />
-      {/* <Edges scale={1} threshold={0} color="gray" /> */}
+      <sphereGeometry args={[4.25, 128, 64]} ref={sphereRef} />
+      <Edges scale={1} threshold={0} color="gray" />
       <meshStandardMaterial transparent opacity={0.25} />
     </mesh>
   );
@@ -33,38 +34,43 @@ function Ball(props: JSX.IntrinsicElements['mesh']): ReactElement {
 
 type LabelProps = {
   text: string;
+  color: string;
 }
 
-function Label({ text }: LabelProps): ReactElement {
-  const elem = document.createElement('canvas');
-  const canvasRef = useRef<HTMLCanvasElement>(elem);
-  const textureRef = useRef<THREE.CanvasTexture>(null);
+// function Label({ text, color }: LabelProps): ReactElement {
+//   const elem = document.createElement('canvas');
+//   const canvasRef = useRef<HTMLCanvasElement>(elem);
+//   const textureRef = useRef<THREE.CanvasTexture>(null);
 
-  const write = (context: CanvasRenderingContext2D): void => {
-    context.font = '32px sans-serif';
-    context.fillStyle = '#ff5733';
-    context.fillText(text, 0, 0);
-  };
+//   const write = (context: CanvasRenderingContext2D): void => {
+//     context.fillStyle = 'rgba(255, 255, 255, 0.5)';
+//     context.fillRect(0, 0, 40, 20);
+//     context.fillStyle = color;
+//     context.font = '16px helvetica';
+//     context.textAlign = 'center';
+//     context.textBaseline = 'middle';
+//     context.fillText(text, 20, 10);
+//   };
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const context = canvas.getContext('2d')!;
-      write(context);
-    }
-  }, [write]);
+//   useEffect(() => {
+//     const canvas = canvasRef.current;
+//     if (canvas) {
+//       canvas.width = 40;
+//       canvas.height = 20;
+//       const context = canvas.getContext('2d')!;
+//       write(context);
+//     }
+//   }, [canvasRef]);
 
-  return (
-    <canvasTexture
-      wrapS={THREE.RepeatWrapping}
-      wrapT={THREE.RepeatWrapping}
-      repeat={new THREE.Vector2(1, 1)}
-      attach="map"
-      ref={textureRef}
-      image={canvasRef.current}
-    />
-  );
-}
+//   return (
+//     <canvasTexture
+//       attach="map"
+//       ref={textureRef}
+//       image={canvasRef.current}
+//       needsUpdate
+//     />
+//   );
+// }
 
 type MarkerProps = {
   color: string;
@@ -93,15 +99,15 @@ function Marker(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElemen
   );
 }
 
-function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | LabelProps): ReactElement {
+function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | LabelProps): ReactElement | null {
   const meshRef = useRef<THREE.Mesh>(null!);
   const [coords, setCoords] = useState<THREE.Vector3>(new THREE.Vector3(0, 0, 0));
 
-  const { text } = props as LabelProps;
+  const { text, color } = props as LabelProps;
   const { position } = props as { position: THREE.Vector3 };
 
   const getOffsetCoords = (): void => {
-    const offsetCoords = calcPoint(...position.toArray(), 0.25, 270);
+    const offsetCoords = calcPoint(...position.toArray(), 0.25, 180);
     setCoords(new THREE.Vector3(...offsetCoords));
   };
 
@@ -113,11 +119,10 @@ function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | LabelProps): ReactE
   }, [position, meshRef.current]);
 
   return (
-    <mesh position={coords} scale={1} ref={meshRef}>
-      <planeGeometry args={[0.5, 0.25]} />
-      <meshBasicMaterial side={THREE.BackSide}>
-        <Label text={text} />
-      </meshBasicMaterial>
+    <mesh
+      {...props}
+    >
+      {/* <textGeometry args={["hello world", fontSettings]} /> */}
     </mesh>
   );
 }
@@ -133,7 +138,7 @@ function BallMarkings({ pinDistance }: BallMarkingsProps): ReactElement {
   const pinCoords = new THREE.Vector3(...PIN_COORDS);
 
   const getCgCoords = (): void => {
-    const coords = calcPoint(...pinCoords.toArray(), pinDistance as number, 270);
+    const coords = calcPoint(...pinCoords.toArray(), pinDistance as number, 180);
     setCgCoords(new THREE.Vector3(...coords));
   };
 
@@ -144,12 +149,12 @@ function BallMarkings({ pinDistance }: BallMarkingsProps): ReactElement {
   return (
     <>
       <Marker key="PIN" color="red" position={pinCoords} />
-      <MarkingLabel text="PIN" position={pinCoords} />
+      <MarkingLabel text="PIN" color="red" position={pinCoords} />
       {
         cgCoords && (
           <>
             <Marker key="CG" color="green" position={cgCoords} />
-            <MarkingLabel text="CG" position={cgCoords} />
+            <MarkingLabel text="CG" color="green" position={cgCoords} />
           </>
         )
       }

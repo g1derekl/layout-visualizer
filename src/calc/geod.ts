@@ -13,14 +13,14 @@ export function calcPoint(
   distance: number,
   bearing: number
 ): [number, number, number] {
-  const nv = new Nvector(x / RADIUS, y / RADIUS, z / RADIUS);
+  const normalizedInput = [z, x, y].map((i) => i / RADIUS) as [number, number, number];
+  const nv = new Nvector(...normalizedInput);
   const latlon = nv.toLatLon();
-
-  console.log(`${x}, ${y}, ${z}`);
-  console.log(latlon);
 
   const destPoint = latlon.destinationPoint(distance, bearing, RADIUS);
   const destNv = destPoint.toNvector();
 
-  return [destNv.x, destNv.y, destNv.z].map((i) => i * RADIUS) as [number, number, number];
+  const coords = [destNv.y, destNv.z, destNv.x].map((i) => i * RADIUS) as [number, number, number];
+
+  return coords;
 }
