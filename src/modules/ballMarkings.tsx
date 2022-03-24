@@ -16,7 +16,7 @@ type BallMarkingsProps = {
 
 export default function BallMarkings({ pinDistance }: BallMarkingsProps): ReactElement {
   const [cgCoords, setCgCoords] = useState<THREE.Vector3 | null>(null);
-  const pinCoords = new THREE.Vector3(...PIN_COORDS);
+  const pinCoords = PIN_COORDS;
 
   const getCgCoords = (): void => {
     const coords = calcPoint(pinCoords, pinDistance as number, 180);

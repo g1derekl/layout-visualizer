@@ -22,7 +22,7 @@ export default function Ball(props: JSX.IntrinsicElements['mesh']): ReactElement
       {...props}
       scale={1}
     >
-      <sphereGeometry args={ballCoords} ref={sphereRef} />
+      <sphereGeometry args={ballCoords.toArray()} ref={sphereRef} />
       {
         SHOW_EDGES && <Edges scale={1} threshold={0} color="gray" />
       }
