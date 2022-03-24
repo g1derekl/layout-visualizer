@@ -12,7 +12,7 @@ import {
 import styles from '../styles/Home.module.css';
 
 import Ball from '../src/components/ball';
-import BallMarkings from '../src/components/ballMarkings';
+import BallMarkings from '../src/modules/ballMarkings';
 
 const { Text } = require('troika-three-text');
 
