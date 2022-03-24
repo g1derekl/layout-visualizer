@@ -1,5 +1,5 @@
 /* global JSX */
-import * as THREE from 'three';
+import { Vector3 } from 'three';
 import React, {
   ReactElement,
   useEffect,
@@ -7,10 +7,11 @@ import React, {
 } from 'react';
 import { calcBearing, calcPoint } from '../calc/geod';
 import { DotMark, LineMark } from '../components/markings';
+import { getMidlineIntCoords, getPapCoords } from '../calc/common';
 
 type BaseLineProps = {
-  pinCoords: THREE.Vector3;
-  cgCoords: THREE.Vector3;
+  pinCoords: Vector3;
+  cgCoords: Vector3;
 }
 
 function BaseLine({ pinCoords, cgCoords }: BaseLineProps): ReactElement {
@@ -18,11 +19,12 @@ function BaseLine({ pinCoords, cgCoords }: BaseLineProps): ReactElement {
 }
 
 type BaseToVaLineProps = {
-  pinCoords: THREE.Vector3;
-  cgCoords: THREE.Vector3;
+  pinCoords: Vector3;
+  cgCoords: Vector3;
   pinToPapDistance?: number;
   drillingAngle?: number;
   leftHanded?: boolean;
+  setResult: Function;
 }
 
 function BaseToVaLine({
@@ -30,27 +32,21 @@ function BaseToVaLine({
   cgCoords,
   pinToPapDistance,
   drillingAngle,
-  leftHanded
+  leftHanded,
+  setResult
 }: BaseToVaLineProps): ReactElement | null {
-  const [papCoords, setPapCoords] = useState<THREE.Vector3 | null>(null);
-
-  const getPapCoordinates = () => {
-    const vertLineBearing = calcBearing(pinCoords, cgCoords);
-
-    let drillingAngleBearing;
-
-    if (leftHanded) { // Reverse angle calculation for left-handed players
-      drillingAngleBearing = vertLineBearing + drillingAngle!;
-    } else {
-      drillingAngleBearing = vertLineBearing - drillingAngle!;
-    }
-
-    const pap = calcPoint(pinCoords, pinToPapDistance!, drillingAngleBearing);
-    setPapCoords(pap);
-  };
+  const [papCoords, setPapCoords] = useState<Vector3 | null>(null);
 
   useEffect(() => {
-    getPapCoordinates();
+    const coords = getPapCoords(
+      pinCoords,
+      cgCoords,
+      pinToPapDistance!,
+      drillingAngle!,
+      leftHanded!
+    );
+    setPapCoords(coords);
+    setResult(coords);
   }, []);
 
   if (papCoords) {
@@ -70,9 +66,48 @@ BaseToVaLine.defaultProps = {
   leftHanded: false
 };
 
-// function Valine() { // Vertical axis line
+type VaLineProps = {
+  pinCoords: Vector3;
+  papCoords: Vector3;
+  papYDistance?: number;
+  valAngle?: number;
+  leftHanded?: boolean;
+  setResult: Function
+}
 
-// }
+function VaLine({
+  pinCoords,
+  papCoords,
+  papYDistance,
+  valAngle,
+  leftHanded,
+  setResult
+}: VaLineProps): ReactElement | null { // Vertical axis line
+  const [midlineIntCoords, setMidlineIntCoords] = useState<Vector3 | null>(null);
+
+  useEffect(() => {
+    const coords = getMidlineIntCoords(
+      pinCoords,
+      papCoords,
+      papYDistance!,
+      valAngle!,
+      leftHanded!
+    );
+    setMidlineIntCoords(coords);
+    setResult(coords);
+  }, []);
+
+  if (midlineIntCoords) {
+    return <LineMark pointStart={papCoords} pointEnd={midlineIntCoords} color="magenta" />;
+  }
+  return null;
+}
+
+VaLine.defaultProps = {
+  papYDistance: (1 / 4),
+  valAngle: 45,
+  leftHanded: false
+};
 
 // function Midline() {
 
@@ -83,12 +118,25 @@ BaseToVaLine.defaultProps = {
 // }
 
 export default function LineMarkings(
-  props: BaseLineProps | BaseToVaLineProps
+  props: BaseLineProps | BaseToVaLineProps | VaLineProps
 ): ReactElement {
+  const [papCoords, setPapCoords] = useState<Vector3 | null>(null);
+  const [midlineIntCoords, setMidlineIntCoords] = useState<Vector3 | null>(null);
+
   return (
     <>
       <BaseLine {...props as BaseLineProps} />
-      <BaseToVaLine {...props as BaseToVaLineProps} />
+      <BaseToVaLine {...props as BaseToVaLineProps} setResult={setPapCoords} />
+      {
+        papCoords
+          && (
+            <VaLine
+              {...props as VaLineProps}
+              papCoords={papCoords}
+              setResult={setMidlineIntCoords}
+            />
+          )
+      }
     </>
   );
 }
