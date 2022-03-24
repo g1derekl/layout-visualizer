@@ -16,8 +16,8 @@ const { Text } = require('troika-three-text');
 extend({ Text });
 
 type MarkerProps = {
-  text: string;
-  color: string;
+  text?: string;
+  color?: string;
 }
 
 function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement | null {
@@ -54,6 +54,11 @@ function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): React
   );
 }
 
+MarkingLabel.defaultProps = {
+  text: '',
+  color: 'darkgray'
+};
+
 export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement {
   const meshRef = useRef<THREE.Mesh>(null!);
 
@@ -80,6 +85,11 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
     </>
   );
 }
+
+DotMark.defaultProps = {
+  text: '',
+  color: 'darkgray'
+};
 
 // Adapted from https://stackoverflow.com/a/42721392/1573031
 function setArc3D(

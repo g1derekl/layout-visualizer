@@ -1,13 +1,16 @@
-/* global JSX */
 import { Vector3 } from 'three';
 import React, {
   ReactElement,
   useEffect,
   useState
 } from 'react';
-import { calcBearing, calcPoint } from '../calc/geod';
 import { DotMark, LineMark } from '../components/markings';
-import { getMidlineIntCoords, getPapCoords } from '../calc/common';
+import {
+  getGripCenterCoords,
+  getMidlineCoords,
+  getPapCoords,
+  getValCoords
+} from '../calc/layout';
 
 type BaseLineProps = {
   pinCoords: Vector3;
@@ -15,7 +18,7 @@ type BaseLineProps = {
 }
 
 function BaseLine({ pinCoords, cgCoords }: BaseLineProps): ReactElement {
-  return <LineMark pointStart={pinCoords} pointEnd={cgCoords} color="orange" />;
+  return <LineMark pointStart={pinCoords} pointEnd={cgCoords} color="orangered" />;
 }
 
 type BaseToVaLineProps = {
@@ -38,15 +41,15 @@ function BaseToVaLine({
   const [papCoords, setPapCoords] = useState<Vector3 | null>(null);
 
   useEffect(() => {
-    const coords = getPapCoords(
+    const pap = getPapCoords(
       pinCoords,
       cgCoords,
       pinToPapDistance!,
       drillingAngle!,
       leftHanded!
     );
-    setPapCoords(coords);
-    setResult(coords);
+    setPapCoords(pap);
+    setResult(pap);
   }, []);
 
   if (papCoords) {
@@ -69,7 +72,6 @@ BaseToVaLine.defaultProps = {
 type VaLineProps = {
   pinCoords: Vector3;
   papCoords: Vector3;
-  papYDistance?: number;
   valAngle?: number;
   leftHanded?: boolean;
   setResult: Function
@@ -78,7 +80,6 @@ type VaLineProps = {
 function VaLine({
   pinCoords,
   papCoords,
-  papYDistance,
   valAngle,
   leftHanded,
   setResult
@@ -86,15 +87,14 @@ function VaLine({
   const [midlineIntCoords, setMidlineIntCoords] = useState<Vector3 | null>(null);
 
   useEffect(() => {
-    const coords = getMidlineIntCoords(
+    const val = getValCoords(
       pinCoords,
       papCoords,
-      papYDistance!,
       valAngle!,
       leftHanded!
     );
-    setMidlineIntCoords(coords);
-    setResult(coords);
+    setMidlineIntCoords(val);
+    setResult(val);
   }, []);
 
   if (midlineIntCoords) {
@@ -104,38 +104,96 @@ function VaLine({
 }
 
 VaLine.defaultProps = {
-  papYDistance: (1 / 4),
   valAngle: 45,
   leftHanded: false
 };
 
-// function Midline() {
+type MidlineProps = {
+  papCoords: Vector3;
+  valCoords: Vector3;
+  papXDistance?: number;
+  papYDistance?: number;
+  leftHanded?: boolean;
+  setResult: Function;
+}
 
-// }
+function Midline({
+  papCoords,
+  valCoords,
+  papXDistance,
+  papYDistance,
+  leftHanded,
+  setResult
+}: MidlineProps): ReactElement | null {
+  const [midlineCoords, setMidlineCoords] = useState<Vector3 | null>(null);
+  const [gripCenterCoords, setGripCenterCoords] = useState<Vector3 | null>(null);
+
+  useEffect(() => {
+    const midline = getMidlineCoords(papCoords, valCoords, papYDistance!);
+    setMidlineCoords(midline);
+
+    const gripCenter = getGripCenterCoords(
+      papCoords,
+      valCoords,
+      midline,
+      papXDistance!,
+      leftHanded!
+    );
+    setGripCenterCoords(gripCenter);
+    setResult(gripCenter);
+  }, []);
+
+  if (midlineCoords && gripCenterCoords) {
+    return (
+      <>
+        <DotMark position={gripCenterCoords} text="CENTER" color="brown" />
+        <LineMark pointStart={midlineCoords} pointEnd={gripCenterCoords} color="sandybrown" />
+      </>
+    );
+  }
+  return null;
+}
+
+Midline.defaultProps = {
+  papXDistance: 5.25,
+  papYDistance: 0.25,
+  leftHanded: false
+};
 
 // function GripCenterLine() {
 
 // }
 
 export default function LineMarkings(
-  props: BaseLineProps | BaseToVaLineProps | VaLineProps
+  props: BaseLineProps | BaseToVaLineProps | VaLineProps | MidlineProps
 ): ReactElement {
   const [papCoords, setPapCoords] = useState<Vector3 | null>(null);
-  const [midlineIntCoords, setMidlineIntCoords] = useState<Vector3 | null>(null);
+  const [valCoords, setValCoords] = useState<Vector3 | null>(null);
+  const [gripCenterCoords, setGripCenterCoords] = useState<Vector3 | null>(null);
 
   return (
     <>
       <BaseLine {...props as BaseLineProps} />
       <BaseToVaLine {...props as BaseToVaLineProps} setResult={setPapCoords} />
       {
-        papCoords
-          && (
-            <VaLine
-              {...props as VaLineProps}
-              papCoords={papCoords}
-              setResult={setMidlineIntCoords}
-            />
-          )
+        papCoords && (
+          <VaLine
+            {...props as VaLineProps}
+            papCoords={papCoords}
+            setResult={setValCoords}
+          />
+        )
+      }
+      {
+        papCoords && valCoords && (
+          <Midline
+            {...props as MidlineProps}
+            papCoords={papCoords}
+            valCoords={valCoords}
+            setResult={setGripCenterCoords}
+          />
+        )
+
       }
     </>
   );
