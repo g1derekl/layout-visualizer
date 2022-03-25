@@ -9,7 +9,18 @@
  */
 import { Vector3 } from 'three';
 
-import { calcBearing, calcPoint } from './geod';
+import { calcBearing, calcPoint, normalizeBearing } from './geod';
+import { getMedianLength } from './misc';
+
+export type FingerCoords = {
+  leftFingerCoords: Vector3;
+  rightFingerCoords: Vector3;
+};
+
+export type CenterLineCoords = {
+  bridgeCenterCoords: Vector3;
+  thumbEdgeCoords: Vector3;
+};
 
 /**
  * With the ball's pin as the starting point, draw a line to the CG marker.
@@ -35,9 +46,9 @@ export function getPapCoords(
   let drillingAngleBearing: number;
 
   if (leftHanded) { // Reverse angle calculation for left-handed players
-    drillingAngleBearing = vertLineBearing + drillingAngle!;
+    drillingAngleBearing = <number>normalizeBearing(vertLineBearing + drillingAngle!);
   } else {
-    drillingAngleBearing = vertLineBearing - drillingAngle!;
+    drillingAngleBearing = <number>normalizeBearing(vertLineBearing - drillingAngle!);
   }
 
   const papCoords = calcPoint(pinCoords, pinToPapDistance!, drillingAngleBearing);
@@ -69,15 +80,9 @@ export function getValCoords(
   let valAngleBearing: number;
 
   if (leftHanded) { // Reverse angle calculation for left-handed players
-    if (papToPinBearing - valAngle < 0) {
-      valAngleBearing = 360 + (papToPinBearing - valAngle);
-    } else {
-      valAngleBearing = papToPinBearing - valAngle;
-    }
-  } else if (papToPinBearing + valAngle >= 360) {
-    valAngleBearing = (papToPinBearing + valAngle) - 360;
+    valAngleBearing = <number>normalizeBearing(papToPinBearing - valAngle);
   } else {
-    valAngleBearing = papToPinBearing + valAngle;
+    valAngleBearing = <number>normalizeBearing(papToPinBearing + valAngle);
   }
 
   const valCoords = calcPoint(papCoords, 1, valAngleBearing);
@@ -130,16 +135,78 @@ export function getGripCenterCoords(
   let midlineBearing: number;
 
   if (leftHanded) {
-    if (papToValBearing + 90 >= 360) {
-      midlineBearing = (papToValBearing + 90) - 360;
-    } else {
-      midlineBearing = papToValBearing + 90;
-    }
-  } else if (papToValBearing - 90 < 0) {
-    midlineBearing = 360 + (papToValBearing - 90);
+    midlineBearing = <number>normalizeBearing(papToValBearing + 90);
   } else {
-    midlineBearing = papToValBearing - 90;
+    midlineBearing = <number>normalizeBearing(papToValBearing - 90);
   }
 
   return calcPoint(midlineCoords, papXDistance, midlineBearing);
+}
+
+/**
+ * Find the coordinates of the bridge center (the midpoint between the bottom edges
+ * of the two finger holes) and the top edge of the thumb hole.
+ * NOTE: this does not apply to players who do not use a thumb hole. For those players,
+ * simply place the finger holes along the midline, such that the grip center lies
+ * at the midpoint between them.
+ * @param {Vector3} gripCenterCoords - coordinates of the grip center
+ * @param {Vector3} midlineCoords - coordinates of the midline
+ * @param {number} leftSpan - length of the player's left finger span
+ * (middle finger for right-handed players, ring finger for left-handed players)
+ * @param {number} rightSpan - length of the player's right finger span
+ * (ring finger for right-handed players, middle finger for left-handed players)
+ * @param {number} bridge - distance between the two finger holes
+ * @param {boolean} leftHanded - true if player is left-handed
+ * @returns {CenterLineCoords} an object containing coordinates to the grip center
+ * and thumb hole edge
+ */
+export function getCenterLineEndpointsWithThumbhole(
+  gripCenterCoords: Vector3,
+  midlineCoords: Vector3,
+  leftSpan: number,
+  rightSpan: number,
+  bridge: number,
+  leftHanded: boolean
+): CenterLineCoords {
+  const centerLineLength = getMedianLength(bridge, leftSpan, rightSpan);
+  const gripCenterToMidlineBearing = calcBearing(gripCenterCoords, midlineCoords);
+
+  let bridgeCenterBearing: number;
+  let thumbEdgeBearing: number;
+
+  if (leftHanded) {
+    bridgeCenterBearing = <number>normalizeBearing(gripCenterToMidlineBearing + 90);
+    thumbEdgeBearing = <number>normalizeBearing(gripCenterToMidlineBearing - 90);
+  } else {
+    bridgeCenterBearing = <number>normalizeBearing(gripCenterToMidlineBearing - 90);
+    thumbEdgeBearing = <number>normalizeBearing(gripCenterToMidlineBearing + 90);
+  }
+
+  const bridgeCenterCoords = calcPoint(gripCenterCoords, centerLineLength / 2, bridgeCenterBearing);
+  const thumbEdgeCoords = calcPoint(gripCenterCoords, centerLineLength / 2, thumbEdgeBearing);
+
+  return { bridgeCenterCoords, thumbEdgeCoords };
+}
+
+
+export function getFingerCoordinatesWithThumbhole(
+  bridgeCenterCoords: Vector3,
+  thumbEdgeCoords: Vector3,
+  leftSpan: number,
+  rightSpan: number,
+  bridge: number,
+  leftFingerSize: number,
+  rightFingerSize: number
+): FingerCoords {
+
+}
+
+export function getFingerCoordinatesWithoutThumbhole(
+  gripCenterCoords: Vector3,
+  midlineCoords: Vector3,
+  bridge: number,
+  leftFingerSize: number,
+  rightFingerSize: number
+): FingerCoords {
+
 }

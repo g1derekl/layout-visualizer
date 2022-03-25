@@ -11,7 +11,7 @@ export function calcDistance() {
 
 /**
  * Given two points on a sphere (represented by Cartesian coordinates),
- * calculate the compass heading from the start point to the destination point
+ * calculate the compass heading from the start point to the destination point.
  * @param {Vector3} startCoords - coordinates of the starting point
  * @param {Vector3} destCoords - coordinates of the destination point
  * @returns {number} the bearing, in degrees
@@ -37,7 +37,7 @@ export function calcBearing(
 
 /**
  * Given a point on a sphere (represented by Cartesian coordinates),
- * calculate the coordinates of the point at the given distance and bearing
+ * calculate the coordinates of the point at the given distance and bearing.
  * @param {Vector3} startCoords - coordinates of the starting point
  * @param {number} distance - distance to the destination point
  * @param {number} bearing - compass heading to the destination point, in degrees
@@ -59,4 +59,25 @@ export function calcPoint(
 
   const destCoords = [destNv.y, destNv.z, destNv.x].map((i) => i * RADIUS);
   return new Vector3().fromArray(destCoords);
+}
+
+/**
+ * Given a bearing value, recursively add or subtract 360 until a value
+ * is obtained between 0 and 359
+ * @param {number} bearing - a compass bearing value
+ * @returns {number} a value between 0 and 359
+ */
+export function normalizeBearing(bearing: number): number | Function {
+  let normalized = bearing;
+
+  if (bearing >= 360) {
+    normalized -= 360;
+    return normalizeBearing(normalized);
+  }
+  if (bearing < 0) {
+    normalized += 360;
+    return normalizeBearing(normalized);
+  }
+
+  return normalized;
 }

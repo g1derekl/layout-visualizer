@@ -16,14 +16,17 @@ import Ball from '../src/components/ball';
 import BallMarkings from '../src/modules/ballMarkings';
 import LayoutMarkings from '../src/modules/layoutMarkings';
 import { PIN_COORDS } from '../src/calc/constants';
+import GripMarkings from '../src/modules/gripMarkings';
 
 const { Text } = require('troika-three-text');
 
 extend({ Text });
 
 export default function Home(): ReactElement {
-  const [cgCoords, setCgCoords] = useState<Vector3 | undefined>();
   const [aspectRatio, setAspectRatio] = useState(0);
+  const [cgCoords, setCgCoords] = useState<Vector3 | undefined>();
+  const [gripCenterCoords, setGripCenterCoords] = useState<Vector3 | undefined>();
+  const [midlineCoords, setMidlineCoords] = useState<Vector3 | undefined>();
 
   const pinCoords = PIN_COORDS;
 
@@ -47,6 +50,10 @@ export default function Home(): ReactElement {
         />
         {
             cgCoords && <LayoutMarkings pinCoords={pinCoords} cgCoords={cgCoords} />
+        }
+        {
+          gripCenterCoords && midlineCoords
+            && <GripMarkings gripCenterCoords={gripCenterCoords} midlineCoords={midlineCoords} />
         }
         <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
       </Canvas>
