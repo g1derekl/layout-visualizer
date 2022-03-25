@@ -1,23 +1,25 @@
-import * as THREE from 'three';
 import React, {
   ReactElement,
   useEffect,
-  useState
 } from 'react';
+import { Vector3 } from 'three';
 
 import { calcPoint } from '../calc/geod';
-import { PIN_COORDS } from '../calc/constants';
-import LineMarkings from './layoutMarkings';
 import { DotMark } from '../components/markings';
 
 type BallMarkingsProps = {
-  pinDistance?: number;
+  pinDistance: number;
+  pinCoords: Vector3;
+  cgCoords?: Vector3;
+  setCgCoords: Function;
 }
 
-export default function BallMarkings({ pinDistance }: BallMarkingsProps): ReactElement {
-  const [cgCoords, setCgCoords] = useState<THREE.Vector3 | null>(null);
-  const pinCoords = PIN_COORDS;
-
+export default function BallMarkings({
+  pinDistance,
+  pinCoords,
+  cgCoords,
+  setCgCoords
+}: BallMarkingsProps): ReactElement {
   const getCgCoords = (): void => {
     const coords = calcPoint(pinCoords, pinDistance as number, 180);
     setCgCoords(coords);
@@ -31,17 +33,12 @@ export default function BallMarkings({ pinDistance }: BallMarkingsProps): ReactE
     <>
       <DotMark text="PIN" color="red" position={pinCoords} />
       {
-        cgCoords && (
-          <>
-            <DotMark text="CG" color="green" position={cgCoords} />
-            <LineMarkings pinCoords={pinCoords} cgCoords={cgCoords} />
-          </>
-        )
+        cgCoords && <DotMark text="CG" color="green" position={cgCoords} />
       }
     </>
   );
 }
 
 BallMarkings.defaultProps = {
-  pinDistance: 2.5
+  cgCoords: null
 };

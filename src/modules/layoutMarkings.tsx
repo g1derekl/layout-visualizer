@@ -19,6 +19,12 @@ type BaseLineProps = {
 
 function BaseLine({ pinCoords, cgCoords }: BaseLineProps): ReactElement {
   return <LineMark pointStart={pinCoords} pointEnd={cgCoords} color="orangered" />;
+  // return (
+  //   <>
+  //     <LineMark pointStart={pinCoords} pointEnd={cgCoords} color="orangered" />
+  //     <LineMark pointStart={pinCoords} pointEnd={new Vector3(4.25, 0, 0)} color="black" />
+  //   </>
+  // );
 }
 
 type BaseToVaLineProps = {
@@ -64,7 +70,7 @@ function BaseToVaLine({
 }
 
 BaseToVaLine.defaultProps = {
-  pinToPapDistance: 4,
+  pinToPapDistance: 3.66,
   drillingAngle: 45,
   leftHanded: false
 };
@@ -146,7 +152,7 @@ function Midline({
   if (midlineCoords && gripCenterCoords) {
     return (
       <>
-        <DotMark position={gripCenterCoords} text="CENTER" color="brown" />
+        <DotMark position={gripCenterCoords} color="brown" />
         <LineMark pointStart={midlineCoords} pointEnd={gripCenterCoords} color="sandybrown" />
       </>
     );
@@ -156,7 +162,7 @@ function Midline({
 
 Midline.defaultProps = {
   papXDistance: 5.25,
-  papYDistance: 0.25,
+  papYDistance: 0,
   leftHanded: false
 };
 
@@ -164,7 +170,7 @@ Midline.defaultProps = {
 
 // }
 
-export default function LineMarkings(
+export default function LayoutMarkings(
   props: BaseLineProps | BaseToVaLineProps | VaLineProps | MidlineProps
 ): ReactElement {
   const [papCoords, setPapCoords] = useState<Vector3 | null>(null);

@@ -28,13 +28,20 @@ function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): React
   const { position } = props as { position: THREE.Vector3 };
 
   const getOffsetCoords = (): void => {
-    const offsetCoords = calcPoint(position, 0.4, 270);
+    const offsetCoords = calcPoint(position, 0.25, 270);
     setCoords(offsetCoords);
   };
 
   useEffect(() => {
     if (meshRef.current) {
-      meshRef.current.lookAt(0, 0, 0);
+      const mesh = meshRef.current;
+      const lookDirection = new THREE.Vector3();
+      const target = new THREE.Vector3();
+
+      lookDirection.subVectors(mesh.position, new THREE.Vector3(0, 0, 0)).normalize();
+      target.copy(mesh.position).add(lookDirection);
+
+      mesh.lookAt(target);
     }
     getOffsetCoords();
   }, [position, meshRef.current]);
@@ -44,11 +51,11 @@ function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): React
       {...props}
       ref={meshRef}
       position={coords}
-      scale={[-1, 1, 1]}
+      scale={[1, 1, 1]}
     >
       { /* @ts-ignore */ }
-      <text color={color} fontSize={0.25} text={text} anchorX="center" anchorY="middle">
-        <meshBasicMaterial side={THREE.BackSide} />
+      <text color={color} fontSize={0.25} text={text} anchorX="right" anchorY="middle">
+        <meshBasicMaterial side={THREE.FrontSide} />
       </text>
     </mesh>
   );

@@ -3,8 +3,9 @@
  * using the dual angle method. More info:
  * - https://www.buddiesproshop.com/content/DualAngle.pdf
  * - http://www.bowlersreference.com/Ball/Layout/Dual.htm
- * NOTE: from here on, relative directions (up, down, left, right) will be given from
+ * NOTE: on this page, relative directions (up, down, left, right) will be given from
  * the perspective of looking at the ball oriented with the CG directly below the pin.
+ * All coordinates, unless otherwise specified, are Cartesian.
  */
 import { Vector3 } from 'three';
 
@@ -14,7 +15,7 @@ import { calcBearing, calcPoint } from './geod';
  * With the ball's pin as the starting point, draw a line to the CG marker.
  * Then, rotate the line about the pin [drillingAngle] degrees counterclockwise
  * (clockwise for left-handed players) and follow that line for [pinToPapDistance]
- * inches to place the player's PAP.
+ * inches to mark the player's PAP (positive axis point).
  * @param {Vector3} pinCoords - coordinates of the pin
  * @param {Vector3} cgCoords - coordinates of the CG marker
  * @param {number} pinToPapDistance - distance from pin to PAP in inches
@@ -86,9 +87,9 @@ export function getValCoords(
 
 /**
  * Like getValCoords, except this determines the intersection of the VAL and the midline, used to
- * find the grip center. getValCoords is needed because this point may be identical to the PAP
- * (i.e. papYDistance = 0), making it impossible to draw the VAL. From here, a line perpendicular
- * to the VAL is drawn, and some point along this line is the grip center.
+ * find the grip center. getValCoords is needed because if papYDistance = 0, this point is
+ * identical to the PAP, making it impossible to draw the VAL. From here, a line perpendicular
+ * to the VAL is drawn, and at some point along this line is the grip center.
  * @param {Vector3} papCoords - coordinates of the PAP
  * @param {Vector3} valCoords - coordinates of the arbitrary VAL point as defined in getValCoords
  * @param {number} papYDistance - vertical distance from the PAP to the grip center
