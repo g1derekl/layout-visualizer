@@ -18,6 +18,7 @@ extend({ Text });
 type MarkerProps = {
   text?: string;
   color?: string;
+  radius?: number;
 }
 
 function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement | null {
@@ -69,7 +70,7 @@ MarkingLabel.defaultProps = {
 export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement {
   const meshRef = useRef<THREE.Mesh>(null!);
 
-  const { color, text } = props as MarkerProps;
+  const { color, text, radius } = props as MarkerProps;
   const { position } = props as JSX.IntrinsicElements['mesh'];
 
   useEffect(() => {
@@ -85,7 +86,7 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
         ref={meshRef}
         scale={1}
       >
-        <circleGeometry args={[0.0625, 16]} />
+        <circleGeometry args={[radius, 16]} />
         <meshStandardMaterial color={color} side={THREE.BackSide} />
       </mesh>
       <MarkingLabel text={text} color={color} position={position} />
@@ -95,7 +96,8 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
 
 DotMark.defaultProps = {
   text: '',
-  color: 'darkgray'
+  color: 'darkgray',
+  radius: 0.0625
 };
 
 // Adapted from https://stackoverflow.com/a/42721392/1573031
@@ -135,19 +137,33 @@ function setArc3D(
 type CircumferenceLineProps = {
   pointStart: THREE.Vector3;
   pointEnd: THREE.Vector3;
-  color: string
+  color: string;
+  direction?: string
 }
 
-export function LineMark(
-  { pointStart, pointEnd, color }: CircumferenceLineProps
-): ReactElement {
+export function LineMark({
+  pointEnd,
+  pointStart,
+  color,
+  direction
+}: CircumferenceLineProps): ReactElement {
   const clockwisePoints = setArc3D(pointStart, pointEnd, true);
   const counterclockwisePoints = setArc3D(pointStart, pointEnd, false);
 
   return (
     <>
-      <Line points={clockwisePoints} color={color} />
-      <Line points={counterclockwisePoints} color={color} />
+      {
+        (direction === 'clockwise' || direction === 'both')
+          && <Line points={clockwisePoints} color={color} />
+      }
+      {
+        (direction === 'counterclockwise' || direction === 'both')
+          && <Line points={counterclockwisePoints} color={color} />
+      }
     </>
   );
 }
+
+LineMark.defaultProps = {
+  direction: 'both'
+};

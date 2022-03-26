@@ -15,3 +15,29 @@ export function getMedianLength(a: number, b: number, c: number): number {
   const median = root / 2;
   return median;
 }
+
+/**
+ * Converts an angle from radians to degrees
+ * @param {number} radians - representation of an angle in radians (between 0 and 2 * pi)
+ * @returns {number} the equivalent angle in degrees (0 - 360)
+ */
+export function radiansToDegrees(radians: number) {
+  return (radians * 180) / Math.PI;
+}
+
+/**
+ * Given the lengths of each side of a triangle, solve for the angles of its vertices
+ * @param {number} a - one side of triangle
+ * @param {number} b - second side of triangle
+ * @param {number} c - third side of triangle
+ * @returns {[number, number, number]} the angles of the three vertices in degrees, each angle
+ * cooresponding to the vertex opposite its respective side
+ */
+export function getTriangleAngles(a: number, b: number, c: number) {
+  const alpha = Math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c));
+  const beta = Math.acos((a ** 2 + c ** 2 - b ** 2) / (2 * a * c));
+  // Find third angle by subtracting first two from pi radians (180 degrees)
+  const gamma = Math.PI - (alpha + beta);
+
+  return [alpha, beta, gamma].map((i) => radiansToDegrees(i));
+}

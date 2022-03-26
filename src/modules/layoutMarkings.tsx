@@ -121,6 +121,8 @@ type MidlineProps = {
   papYDistance?: number;
   leftHanded?: boolean;
   setResult: Function;
+  midlineCoords: Vector3;
+  setMidlineCoords: Function;
 }
 
 function Midline({
@@ -129,9 +131,10 @@ function Midline({
   papXDistance,
   papYDistance,
   leftHanded,
-  setResult
+  setResult,
+  midlineCoords,
+  setMidlineCoords
 }: MidlineProps): ReactElement | null {
-  const [midlineCoords, setMidlineCoords] = useState<Vector3 | null>(null);
   const [gripCenterCoords, setGripCenterCoords] = useState<Vector3 | null>(null);
 
   useEffect(() => {
@@ -166,16 +169,18 @@ Midline.defaultProps = {
   leftHanded: false
 };
 
-// function GripCenterLine() {
-
-// }
+type LayoutMarkingsProps = {
+  gripCenterCoords: Vector3;
+  setGripCenterCoords: Function;
+}
 
 export default function LayoutMarkings(
-  props: BaseLineProps | BaseToVaLineProps | VaLineProps | MidlineProps
+  props: LayoutMarkingsProps | BaseLineProps | BaseToVaLineProps | VaLineProps | MidlineProps
 ): ReactElement {
   const [papCoords, setPapCoords] = useState<Vector3 | null>(null);
   const [valCoords, setValCoords] = useState<Vector3 | null>(null);
-  const [gripCenterCoords, setGripCenterCoords] = useState<Vector3 | null>(null);
+
+  const { setGripCenterCoords } = props as LayoutMarkingsProps;
 
   return (
     <>

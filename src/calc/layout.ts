@@ -10,7 +10,7 @@
 import { Vector3 } from 'three';
 
 import { calcBearing, calcPoint, normalizeBearing } from './geod';
-import { getMedianLength } from './misc';
+import { getMedianLength, getTriangleAngles } from './misc';
 
 export type FingerCoords = {
   leftFingerCoords: Vector3;
@@ -188,25 +188,93 @@ export function getCenterLineEndpointsWithThumbhole(
   return { bridgeCenterCoords, thumbEdgeCoords };
 }
 
-
-export function getFingerCoordinatesWithThumbhole(
+export function getFingerCoordsWithThumbhole(
   bridgeCenterCoords: Vector3,
   thumbEdgeCoords: Vector3,
   leftSpan: number,
   rightSpan: number,
-  bridge: number,
   leftFingerSize: number,
-  rightFingerSize: number
+  rightFingerSize: number,
+  bridge: number
 ): FingerCoords {
+  const thumbToBridgeBearing = calcBearing(thumbEdgeCoords, bridgeCenterCoords);
 
+  // Find the distance between the center of the two finger holes
+  const bridgePlusFingers = bridge + (leftFingerSize + rightFingerSize) / 2;
+  // Using a triangle with the sides being the spans and distance between the finger holes,
+  // determine the bearings from the thumb hole to each finger hole
+  const thumbToFingersAngle = getTriangleAngles(
+    bridgePlusFingers,
+    leftSpan + leftFingerSize / 2,
+    rightSpan + rightFingerSize / 2
+  )[0];
+
+  const leftFingerBearing = <number>normalizeBearing(
+    thumbToBridgeBearing - thumbToFingersAngle / 2
+  );
+  const rightFingerBearing = <number>normalizeBearing(
+    thumbToBridgeBearing + thumbToFingersAngle / 2
+  );
+
+  const leftFingerCoords = calcPoint(
+    thumbEdgeCoords,
+    leftSpan + (leftFingerSize / 2),
+    leftFingerBearing
+  );
+  const rightFingerCoords = calcPoint(
+    thumbEdgeCoords,
+    rightSpan + (rightFingerSize / 2),
+    rightFingerBearing
+  );
+
+  return { leftFingerCoords, rightFingerCoords };
 }
 
-export function getFingerCoordinatesWithoutThumbhole(
+export function getThumbCoords(
+  gripCenterCoords: Vector3,
+  thumbEdgeCoords: Vector3,
+  thumbSize: number
+): Vector3 {
+  const gripCenterToThumbBearing = calcBearing(gripCenterCoords, thumbEdgeCoords);
+  const thumbCoords = calcPoint(thumbEdgeCoords, thumbSize / 2, gripCenterToThumbBearing);
+
+  return thumbCoords;
+}
+
+export function getFingerCoordsWithoutThumbhole(
   gripCenterCoords: Vector3,
   midlineCoords: Vector3,
-  bridge: number,
   leftFingerSize: number,
-  rightFingerSize: number
+  rightFingerSize: number,
+  bridge: number,
+  leftHanded: boolean
 ): FingerCoords {
+  const gripCenterToLeftFingerDistance = bridge / 2 + leftFingerSize / 2;
+  const gripCenterToRightFingerDistance = bridge / 2 + rightFingerSize / 2;
 
+  const gripCenterToMidlineBearing = calcBearing(gripCenterCoords, midlineCoords);
+
+  let leftFingerBearing: number;
+  let rightFingerBearing: number;
+
+  if (leftHanded) {
+    leftFingerBearing = gripCenterToMidlineBearing;
+    rightFingerBearing = <number>normalizeBearing(gripCenterToMidlineBearing + 180);
+  } else {
+    leftFingerBearing = <number>normalizeBearing(gripCenterToMidlineBearing + 180);
+    rightFingerBearing = gripCenterToMidlineBearing;
+  }
+
+  const leftFingerCoords = calcPoint(
+    gripCenterCoords,
+    gripCenterToLeftFingerDistance,
+    leftFingerBearing
+  );
+  const rightFingerCoords = calcPoint(
+    gripCenterCoords,
+    gripCenterToRightFingerDistance,
+    rightFingerBearing
+  );
+
+  return { leftFingerCoords, rightFingerCoords };
 }

@@ -29,6 +29,8 @@ export default function Home(): ReactElement {
   const [midlineCoords, setMidlineCoords] = useState<Vector3 | undefined>();
 
   const pinCoords = PIN_COORDS;
+  const leftSpan = 4 + 1 / 2;
+  const rightSpan = 4 + 1 / 4;
 
   useEffect(() => {
     if (window) {
@@ -49,11 +51,27 @@ export default function Home(): ReactElement {
           setCgCoords={setCgCoords}
         />
         {
-            cgCoords && <LayoutMarkings pinCoords={pinCoords} cgCoords={cgCoords} />
+            cgCoords && (
+              <LayoutMarkings
+                pinCoords={pinCoords}
+                cgCoords={cgCoords}
+                gripCenterCoords={gripCenterCoords}
+                setGripCenterCoords={setGripCenterCoords}
+                midlineCoords={midlineCoords}
+                setMidlineCoords={setMidlineCoords}
+              />
+            )
         }
         {
           gripCenterCoords && midlineCoords
-            && <GripMarkings gripCenterCoords={gripCenterCoords} midlineCoords={midlineCoords} />
+            && (
+              <GripMarkings
+                gripCenterCoords={gripCenterCoords}
+                midlineCoords={midlineCoords}
+                leftSpan={leftSpan}
+                rightSpan={rightSpan}
+              />
+            )
         }
         <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
       </Canvas>
