@@ -8,8 +8,7 @@ import {
   FingerCoords,
   getCenterLineEndpointsWithThumbhole,
   getFingerCoordsWithoutThumbhole,
-  getFingerCoordsWithThumbhole,
-  getThumbCoords
+  getFingerCoordsWithThumbhole
 } from '../calc/layout';
 import { DotMark, LineMark } from '../components/markings';
 
@@ -85,36 +84,48 @@ export default function GripMarkings({
   const findCenterLine = (): void => {
     const {
       bridgeCenterCoords: bridgeCenter,
-      thumbEdgeCoords: thumbEdge
+      thumbEdgeCoords: thumbEdge,
+      thumbCenterCoords: thumbCenter
     } = getCenterLineEndpointsWithThumbhole(
       gripCenterCoords,
       midlineCoords,
       leftSpan,
       rightSpan,
-      bridge!,
+      leftFingerSize!,
+      rightFingerSize!,
+      thumbSize!,
       leftHanded!
     );
 
     setBridgeCenterCoords(bridgeCenter);
     setThumbEdgeCoords(thumbEdge);
+    setThumbHoleCoords(thumbCenter);
   };
 
   const mapGripHoles = (): void => {
     if (thumbHole) {
-      setFingerHoleCoords(getFingerCoordsWithThumbhole(
+      const leftFingerCoords = getFingerCoordsWithThumbhole(
         bridgeCenterCoords!,
-        thumbEdgeCoords!,
+        thumbHoleCoords!,
         leftSpan,
-        rightSpan,
         leftFingerSize!,
+        thumbSize!,
+        bridge!,
+        'left'
+      );
+      const rightFingerCoords = getFingerCoordsWithThumbhole(
+        bridgeCenterCoords!,
+        thumbHoleCoords!,
+        rightSpan,
         rightFingerSize!,
-        bridge!
-      ));
-      setThumbHoleCoords(getThumbCoords(
-        gripCenterCoords,
-        thumbEdgeCoords!,
-        thumbSize!
-      ));
+        thumbSize!,
+        bridge!,
+        'right'
+      );
+      setFingerHoleCoords({
+        leftFingerCoords,
+        rightFingerCoords
+      });
     } else {
       setFingerHoleCoords(getFingerCoordsWithoutThumbhole(
         gripCenterCoords,

@@ -8,14 +8,14 @@
  * All coordinates, unless otherwise specified, are Cartesian.
  */
 import { Vector3 } from 'three';
+import { radToDeg } from 'three/src/math/MathUtils';
 
 import {
   calcBearing,
-  calcDistance,
   calcPoint,
   normalizeBearing
 } from './geod';
-import { getMedianLength, getTriangleAngles } from './trig';
+import { getArcAngle } from './trig';
 
 export type FingerCoords = {
   leftFingerCoords: Vector3;
@@ -25,6 +25,7 @@ export type FingerCoords = {
 export type CenterLineCoords = {
   bridgeCenterCoords: Vector3;
   thumbEdgeCoords: Vector3;
+  thumbCenterCoords: Vector3;
 };
 
 /**
@@ -170,7 +171,9 @@ export function getCenterLineEndpointsWithThumbhole(
   midlineCoords: Vector3,
   leftSpan: number,
   rightSpan: number,
-  bridge: number,
+  leftFingerSize: number,
+  rightFingerSize: number,
+  thumbSize: number,
   leftHanded: boolean
 ): CenterLineCoords {
   const centerLineLength = Math.max(leftSpan, rightSpan);
@@ -187,63 +190,65 @@ export function getCenterLineEndpointsWithThumbhole(
     thumbEdgeBearing = <number>normalizeBearing(gripCenterToMidlineBearing + 90);
   }
 
-  const bridgeCenterCoords = calcPoint(gripCenterCoords, centerLineLength / 2, bridgeCenterBearing);
-  const thumbEdgeCoords = calcPoint(gripCenterCoords, centerLineLength / 2, thumbEdgeBearing);
+  const bridgeCenterCoords = calcPoint(
+    gripCenterCoords,
+    (centerLineLength + Math.max(leftFingerSize, rightFingerSize)) / 2,
+    bridgeCenterBearing
+  );
+  const thumbEdgeCoords = calcPoint(
+    gripCenterCoords,
+    centerLineLength / 2,
+    thumbEdgeBearing
+  );
+  const thumbCenterCoords = calcPoint(
+    gripCenterCoords,
+    (thumbSize + centerLineLength) / 2,
+    thumbEdgeBearing
+  );
 
-  return { bridgeCenterCoords, thumbEdgeCoords };
+  return { bridgeCenterCoords, thumbEdgeCoords, thumbCenterCoords };
 }
 
 export function getFingerCoordsWithThumbhole(
   bridgeCenterCoords: Vector3,
-  thumbEdgeCoords: Vector3,
-  leftSpan: number,
-  rightSpan: number,
-  leftFingerSize: number,
-  rightFingerSize: number,
-  bridge: number
-): FingerCoords {
-  const thumbToBridgeBearing = calcBearing(thumbEdgeCoords, bridgeCenterCoords);
-
-  // Find the distance between the center of the two finger holes
-  const bridgePlusFingers = bridge + (leftFingerSize + rightFingerSize) / 2;
-  // Using a triangle with the sides being the spans and distance between the finger holes,
-  // determine the bearings from the thumb hole to each finger hole
-  const thumbToFingersAngle = getTriangleAngles(
-    bridgePlusFingers,
-    leftSpan + leftFingerSize / 2,
-    rightSpan + rightFingerSize / 2
-  )[0];
-
-  const leftFingerBearing = <number>normalizeBearing(
-    thumbToBridgeBearing - thumbToFingersAngle / 2
-  );
-  const rightFingerBearing = <number>normalizeBearing(
-    thumbToBridgeBearing + thumbToFingersAngle / 2
-  );
-
-  const leftFingerCoords = calcPoint(
-    thumbEdgeCoords,
-    leftSpan + (leftFingerSize / 2),
-    leftFingerBearing
-  );
-  const rightFingerCoords = calcPoint(
-    thumbEdgeCoords,
-    rightSpan + (rightFingerSize / 2),
-    rightFingerBearing
-  );
-
-  return { leftFingerCoords, rightFingerCoords };
-}
-
-export function getThumbCoords(
-  gripCenterCoords: Vector3,
-  thumbEdgeCoords: Vector3,
-  thumbSize: number
+  thumbCenterCoords: Vector3,
+  span: number,
+  fingerSize: number,
+  thumbSize: number,
+  bridge: number,
+  side: 'left' | 'right'
 ): Vector3 {
-  const gripCenterToThumbBearing = calcBearing(gripCenterCoords, thumbEdgeCoords);
-  const thumbCoords = calcPoint(thumbEdgeCoords, thumbSize / 2, gripCenterToThumbBearing);
+  const thumbToBridgeBearing = calcBearing(thumbCenterCoords, bridgeCenterCoords);
 
-  return thumbCoords;
+  // Find the distance between the center of the finger hole and the center line
+  const distanceFingerToCenterLine = (bridge + fingerSize) / 2;
+  const distanceThumbToFinger = span + thumbSize / 2 + fingerSize / 2;
+
+  // Define angles in spherical triangle formed by the span, center line and distanceToCenterLine.
+  // Reference for calculations:
+  // https://en.wikipedia.org/wiki/Spherical_trigonometry#Napier's_rules_for_right_spherical_triangles
+  const a = getArcAngle(distanceFingerToCenterLine); // center line to center of finger hole
+  const c = getArcAngle(distanceThumbToFinger); // center of thumb hole to center of finger hole
+
+  // Find the angle at thumb hole between center line and span line
+  const A = Math.asin(Math.sin(a) / Math.sin(c));
+
+  let bearingFromThumbToFinger: number;
+
+  // Add or subtract angle from center line bearing
+  if (side === 'left') {
+    bearingFromThumbToFinger = <number>normalizeBearing(thumbToBridgeBearing - radToDeg(A));
+  } else {
+    bearingFromThumbToFinger = <number>normalizeBearing(thumbToBridgeBearing + radToDeg(A));
+  }
+
+  const fingerHoleCenter = calcPoint(
+    thumbCenterCoords,
+    distanceThumbToFinger,
+    bearingFromThumbToFinger
+  );
+
+  return fingerHoleCenter;
 }
 
 export function getFingerCoordsWithoutThumbhole(
