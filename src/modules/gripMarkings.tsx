@@ -34,8 +34,8 @@ type CenterLineProps = {
 type FingerHolesProps = {
   leftFingerCoords: Vector3;
   rightFingerCoords: Vector3;
-  leftFingerSize?: number;
-  rightFingerSize?: number;
+  leftFingerSize: number;
+  rightFingerSize: number;
 }
 
 function FingerHoles({
@@ -46,16 +46,11 @@ function FingerHoles({
 }: FingerHolesProps): ReactElement {
   return (
     <>
-      <DotMark position={leftFingerCoords} radius={leftFingerSize! / 2} color="black" />
-      <DotMark position={rightFingerCoords} radius={rightFingerSize! / 2} color="black" />
+      <DotMark position={leftFingerCoords} radius={leftFingerSize / 2} color="black" />
+      <DotMark position={rightFingerCoords} radius={rightFingerSize / 2} color="black" />
     </>
   );
 }
-
-FingerHoles.defaultProps = {
-  leftFingerSize: 31 / 32,
-  rightFingerSize: 31 / 32
-};
 
 type ThumbHoleProps = {
   coords: Vector3,
@@ -153,7 +148,13 @@ export default function GripMarkings({
         )
       }
       {
-        fingerHoleCoords && <FingerHoles {...fingerHoleCoords} />
+        fingerHoleCoords && (
+          <FingerHoles
+            leftFingerSize={leftFingerSize!}
+            rightFingerSize={rightFingerSize!}
+            {...fingerHoleCoords}
+          />
+        )
       }
       {
         thumbHole && thumbHoleCoords && <ThumbHole coords={thumbHoleCoords} size={thumbSize!} />

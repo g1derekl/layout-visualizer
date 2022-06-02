@@ -20,11 +20,12 @@
     "troika-three-text": "^0.46.3"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^12.1.6",
     "@types/node": "17.0.21",
     "@types/react": "17.0.41",
     "@types/three": "^0.138.0",
-    "@typescript-eslint/eslint-plugin": "^5.15.0",
-    "@typescript-eslint/parser": "^5.15.0",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
     "eslint": "^8.11.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-next": "12.1.0",

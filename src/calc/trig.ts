@@ -1,3 +1,5 @@
+import { BALL_RADIUS as RADIUS } from './constants';
+
 export function placeholder() {
 }
 
@@ -34,10 +36,21 @@ export function radiansToDegrees(radians: number) {
  * cooresponding to the vertex opposite its respective side
  */
 export function getTriangleAngles(a: number, b: number, c: number) {
-  const alpha = Math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c));
-  const beta = Math.acos((a ** 2 + c ** 2 - b ** 2) / (2 * a * c));
+  const alpha = Math.acos(((b ** 2) + (c ** 2) - (a ** 2)) / (2 * b * c));
+  const beta = Math.acos(((a ** 2) + (c ** 2) - (b ** 2)) / (2 * a * c));
   // Find third angle by subtracting first two from pi radians (180 degrees)
   const gamma = Math.PI - (alpha + beta);
 
   return [alpha, beta, gamma].map((i) => radiansToDegrees(i));
+}
+
+/**
+ * Given the radius of a sphere and length of an arc along the sphere, find the arc angle
+ * @param {number} arcLength - length of arc along the surface of the sphere
+ * @param {number} radius - radius of the sphere
+ * @returns {number} the arc angle in degrees
+ */
+export function getArcAngle(arcLength: number, radius: number = RADIUS) {
+  const circumference = 2 * radius * Math.PI;
+  return (arcLength / circumference) * 360;
 }

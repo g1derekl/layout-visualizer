@@ -1,12 +1,26 @@
 import { Vector3 } from 'three';
 import { Nvector } from 'geodesy/latlon-nvector-spherical';
-
-const RADIUS = 4.25;
+import { BALL_RADIUS as RADIUS } from './constants';
 
 type CartesianCoords = [number, number, number];
 
-export function calcDistance() {
+export function calcDistance(
+  startCoords: Vector3,
+  destCoords: Vector3
+): number {
+  const { x, y, z } = startCoords;
+  const normalizedInput = [z, x, y].map((i) => i / RADIUS) as CartesianCoords;
+  const nv = new Nvector(...normalizedInput);
 
+  const { x: destX, y: destY, z: destZ } = destCoords;
+  const normalizedDestInput = [destZ, destX, destY].map((i) => i / RADIUS) as CartesianCoords;
+  const destNv = new Nvector(...normalizedDestInput);
+
+  const latlon = nv.toLatLon();
+  const destLatlon = destNv.toLatLon();
+
+  const distance = latlon.distanceTo(destLatlon, RADIUS);
+  return distance;
 }
 
 /**

@@ -9,8 +9,13 @@
  */
 import { Vector3 } from 'three';
 
-import { calcBearing, calcPoint, normalizeBearing } from './geod';
-import { getMedianLength, getTriangleAngles } from './misc';
+import {
+  calcBearing,
+  calcDistance,
+  calcPoint,
+  normalizeBearing
+} from './geod';
+import { getMedianLength, getTriangleAngles } from './trig';
 
 export type FingerCoords = {
   leftFingerCoords: Vector3;
@@ -168,7 +173,7 @@ export function getCenterLineEndpointsWithThumbhole(
   bridge: number,
   leftHanded: boolean
 ): CenterLineCoords {
-  const centerLineLength = getMedianLength(bridge, leftSpan, rightSpan);
+  const centerLineLength = Math.max(leftSpan, rightSpan);
   const gripCenterToMidlineBearing = calcBearing(gripCenterCoords, midlineCoords);
 
   let bridgeCenterBearing: number;
