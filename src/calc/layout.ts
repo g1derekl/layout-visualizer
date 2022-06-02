@@ -222,7 +222,7 @@ export function getFingerCoordsWithThumbhole(
 
   // Find the distance between the center of the finger hole and the center line
   const distanceFingerToCenterLine = (bridge + fingerSize) / 2;
-  const distanceThumbToFinger = span + thumbSize / 2 + fingerSize / 2;
+  const distanceThumbToFinger = span + (thumbSize + fingerSize) / 2;
 
   // Define angles in spherical triangle formed by the span, center line and distanceToCenterLine.
   // Reference for calculations:

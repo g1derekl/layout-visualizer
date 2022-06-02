@@ -70,7 +70,7 @@ function BaseToVaLine({
 }
 
 BaseToVaLine.defaultProps = {
-  pinToPapDistance: 3.66,
+  pinToPapDistance: 4 + 1 / 2,
   drillingAngle: 45,
   leftHanded: false
 };
@@ -128,8 +128,8 @@ type MidlineProps = {
 function Midline({
   papCoords,
   valCoords,
-  papXDistance,
-  papYDistance,
+  papXDistance, // Distance "over" the midline from grip center
+  papYDistance, // Vertical offset from midline
   leftHanded,
   setResult,
   midlineCoords,
@@ -138,7 +138,9 @@ function Midline({
   const [gripCenterCoords, setGripCenterCoords] = useState<Vector3 | null>(null);
 
   useEffect(() => {
-    const midline = getMidlineCoords(papCoords, valCoords, papYDistance!);
+    // Multiply papYDistance by -1 because it is normally expressed relative to the midline,
+    // not the other way around
+    const midline = getMidlineCoords(papCoords, valCoords, papYDistance! * -1);
     setMidlineCoords(midline);
 
     const gripCenter = getGripCenterCoords(
@@ -154,10 +156,7 @@ function Midline({
 
   if (midlineCoords && gripCenterCoords) {
     return (
-      <>
-        <DotMark position={gripCenterCoords} color="brown" />
-        <LineMark pointStart={midlineCoords} pointEnd={gripCenterCoords} color="sandybrown" />
-      </>
+      <LineMark pointStart={midlineCoords} pointEnd={gripCenterCoords} color="sandybrown" />
     );
   }
   return null;
@@ -165,7 +164,7 @@ function Midline({
 
 Midline.defaultProps = {
   papXDistance: 5.25,
-  papYDistance: 0,
+  papYDistance: 0.5,
   leftHanded: false
 };
 

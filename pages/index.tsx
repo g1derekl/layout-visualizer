@@ -29,7 +29,7 @@ export default function Home(): ReactElement {
   const [midlineCoords, setMidlineCoords] = useState<Vector3 | undefined>();
 
   const pinCoords = PIN_COORDS;
-  const leftSpan = 4 + 1 / 2;
+  const leftSpan = 4 + 1 / 4;
   const rightSpan = 4 + 1 / 4;
 
   useEffect(() => {
