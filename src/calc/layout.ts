@@ -150,8 +150,8 @@ export function getGripCenterCoords(
 }
 
 /**
- * Find the coordinates of the bridge center (the midpoint between the bottom edges
- * of the two finger holes) and the top edge of the thumb hole.
+ * Find the coordinates of the bridge center (the midpoint between the two finger holes)
+ * and the top edge of the thumb hole, for the purposes of drawing the center line.
  * NOTE: this does not apply to players who do not use a thumb hole. For those players,
  * simply place the finger holes along the midline, such that the grip center lies
  * at the midpoint between them.
@@ -161,7 +161,8 @@ export function getGripCenterCoords(
  * (middle finger for right-handed players, ring finger for left-handed players)
  * @param {number} rightSpan - length of the player's right finger span
  * (ring finger for right-handed players, middle finger for left-handed players)
- * @param {number} bridge - distance between the two finger holes
+ * @param {number} bridge - the combined distance between the edge of the two finger holes
+ * and their respective closest points on the center line
  * @param {boolean} leftHanded - true if player is left-handed
  * @returns {CenterLineCoords} an object containing coordinates to the grip center
  * and thumb hole edge
@@ -209,6 +210,19 @@ export function getCenterLineEndpointsWithThumbhole(
   return { bridgeCenterCoords, thumbEdgeCoords, thumbCenterCoords };
 }
 
+/**
+ * Find the location of a finger hole, whose edge is [span] inches away from the edge
+ * of the thumb hole and [bridge / 2] inches away from the nearest point on the center line.
+ * @param {Vector3} bridgeCenterCoords coordinates of one endpoint of the center line
+ * @param {Vector3} thumbCenterCoords fdgdfg
+ * @param {number} span the player's left or right span, depending on side
+ * @param {number} fingerSize the diameter of the finger hole
+ * @param {number} thumbSize the diameter of the thumb hole
+ * @param {number} bridge the combined distance between the edge of two finger holes
+ * and their respective closest points on the center line
+ * @param {'left' | 'right'} side which finger hole to find
+ * @returns {Vector3} the coordinates of the finger hole
+ */
 export function getFingerCoordsWithThumbhole(
   bridgeCenterCoords: Vector3,
   thumbCenterCoords: Vector3,
@@ -226,7 +240,7 @@ export function getFingerCoordsWithThumbhole(
 
   // Define angles in spherical triangle formed by the span, center line and distanceToCenterLine.
   // Reference for calculations:
-  // https://en.wikipedia.org/wiki/Spherical_trigonometry#Napier's_rules_for_right_spherical_triangles
+  // https://en.wikipedia.org/wiki/Spherical_trigonometry#Napier%27s_rules_for_right_spherical_triangles
   const a = getArcAngle(distanceFingerToCenterLine); // center line to center of finger hole
   const c = getArcAngle(distanceThumbToFinger); // center of thumb hole to center of finger hole
 
