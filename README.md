@@ -1,3 +1,13 @@
+**This is a work in progress -- it is very early in development and not in a usable state.**
+
+Visualize the placement of the finger holes in a bowling ball.
+
+## Introduction
+
+High-performance bowling balls have irregularly-shaped weight blocks in their cores that are specially designed to induce gyration when the ball spins about a certain axis, helping it "hook" (curve) into the pins to maximize the chances of getting a strike. Therefore, it is important to drill the finger holes in a location such that when the bowler rolls the ball down the lane, the axis of rotation is at a point that allows the weight block to generate the optimal amount of gyration.
+
+The orientation of the weight block is marked by a "pin" on the surface of the ball, while another mark indicates its center of gravity (CG). On bowling balls with "asymmetrical" weight blocks, a third mark shows the point at which the mass is at its most uneven between the two halves; this is known as the mass bias. With these points, along with the bowler's "positive axis point" (PAP), which is a measurement of the axis of rotation in relation to their hand position as they release the ball, a skilled ball driller can fine-tune the ball's drilling layout to suit each individual player.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
