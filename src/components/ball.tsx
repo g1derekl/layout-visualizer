@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import React, {
   ReactElement,
   useRef,
@@ -7,20 +6,16 @@ import {
   Edges
 } from '@react-three/drei';
 import { MeshProps } from '@react-three/fiber';
+import { SphereGeometry } from 'three';
 
 import { BALL_COORDS } from '../calc/constants';
 
-const SHOW_EDGES = false;
-
-interface BallProps extends MeshProps {
-  markings: ReactElement
-}
+const SHOW_EDGES = true;
 
 export default function Ball({
-  markings,
   ...props
-}: BallProps): ReactElement {
-  const sphereRef = useRef<THREE.SphereGeometry>(null!);
+}: MeshProps): ReactElement {
+  const sphereRef = useRef<SphereGeometry>(null!);
 
   const ballCoords = BALL_COORDS;
 
@@ -33,9 +28,8 @@ export default function Ball({
       {
         SHOW_EDGES && <Edges scale={1} threshold={0} color="gray" />
       }
-      <meshStandardMaterial opacity={1}>
-        {markings}
-      </meshStandardMaterial>
+      <meshBasicMaterial opacity={0.1} transparent color="white" />
+      {props.children}
     </mesh>
   );
 }
