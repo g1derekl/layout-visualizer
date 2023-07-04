@@ -10,7 +10,7 @@ import { SphereGeometry } from 'three';
 
 import { BALL_COORDS } from '../calc/constants';
 
-const SHOW_EDGES = true;
+const SHOW_EDGES = false;
 
 export default function Ball({
   ...props
@@ -28,7 +28,7 @@ export default function Ball({
       {
         SHOW_EDGES && <Edges scale={1} threshold={0} color="gray" />
       }
-      <meshBasicMaterial opacity={0.1} transparent color="white" />
+      <meshBasicMaterial opacity={1} color="white" />
       {props.children}
     </mesh>
   );

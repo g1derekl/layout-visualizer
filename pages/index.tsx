@@ -15,11 +15,11 @@ import styles from '../styles/Home.module.css';
 import Ball from '../src/components/ball';
 import BallMarkings from '../src/modules/ballMarkings';
 import { PIN_COORDS } from '../src/calc/constants';
+import LayoutMarkings from '../src/modules/layoutMarkings';
+import GripMarkings from '../src/modules/gripMarkings';
 
 const { Text } = require('troika-three-text');
 
-// import LayoutMarkings from '../src/modules/layoutMarkings';
-// import GripMarkings from '../src/modules/gripMarkings';
 extend({ Text });
 
 export default function Home(): ReactElement {
@@ -29,8 +29,8 @@ export default function Home(): ReactElement {
   const [midlineCoords, setMidlineCoords] = useState<Vector3 | undefined>();
 
   const pinCoords = PIN_COORDS;
-  const leftSpan = 4 + 1 / 4;
-  const rightSpan = 4 + 1 / 4;
+  const leftSpan = 3.5;
+  const rightSpan = 3.5;
 
   useEffect(() => {
     if (window) {
@@ -50,30 +50,30 @@ export default function Home(): ReactElement {
             cgCoords={cgCoords}
             setCgCoords={setCgCoords}
           />
+          {
+              cgCoords && (
+                <LayoutMarkings
+                  pinCoords={pinCoords}
+                  cgCoords={cgCoords}
+                  gripCenterCoords={gripCenterCoords}
+                  setGripCenterCoords={setGripCenterCoords}
+                  midlineCoords={midlineCoords}
+                  setMidlineCoords={setMidlineCoords}
+                />
+              )
+          }
+          {
+            gripCenterCoords && midlineCoords
+              && (
+                <GripMarkings
+                  gripCenterCoords={gripCenterCoords}
+                  midlineCoords={midlineCoords}
+                  leftSpan={leftSpan}
+                  rightSpan={rightSpan}
+                />
+              )
+          }
         </Ball>
-        {/* {
-            cgCoords && (
-              <LayoutMarkings
-                pinCoords={pinCoords}
-                cgCoords={cgCoords}
-                gripCenterCoords={gripCenterCoords}
-                setGripCenterCoords={setGripCenterCoords}
-                midlineCoords={midlineCoords}
-                setMidlineCoords={setMidlineCoords}
-              />
-            )
-        }
-        {
-          gripCenterCoords && midlineCoords
-            && (
-              <GripMarkings
-                gripCenterCoords={gripCenterCoords}
-                midlineCoords={midlineCoords}
-                leftSpan={leftSpan}
-                rightSpan={rightSpan}
-              />
-            )
-        } */}
         <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
       </Canvas>
     </div>

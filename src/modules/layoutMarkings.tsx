@@ -19,12 +19,6 @@ type BaseLineProps = {
 
 function BaseLine({ pinCoords, cgCoords }: BaseLineProps): ReactElement {
   return <LineMark pointStart={pinCoords} pointEnd={cgCoords} color="orangered" />;
-  // return (
-  //   <>
-  //     <LineMark pointStart={pinCoords} pointEnd={cgCoords} color="orangered" />
-  //     <LineMark pointStart={pinCoords} pointEnd={new Vector3(4.25, 0, 0)} color="black" />
-  //   </>
-  // );
 }
 
 type BaseToVaLineProps = {
