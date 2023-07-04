@@ -81,22 +81,28 @@ import { useLoader } from '@react-three/fiber';
 //   return <canvas ref={canvasRef} />;
 // }
 
-function createHoleTexture(): string {
+/**
+ * Create a canvas and draw a circle on it to use as a texture for the ball model
+ * @returns a URL for loading the texture
+ */
+function createCircleTexture(color?: string): string {
   const canvas = document.createElement('canvas');
   canvas.width = 100;
   canvas.height = 100;
   if (canvas.getContext) {
     const context = canvas.getContext('2d');
     context!.arc(50, 50, 50, 0, 2 * Math.PI);
-    context!.fillStyle = 'green';
+    context!.fillStyle = color || 'black';
     context!.fill();
   }
   return canvas.toDataURL();
 }
 
 function BallMarkings(): ReactElement {
-  const textureUrl = createHoleTexture();
-  const texture = useTexture(textureUrl);
+  const pinTexture = createCircleTexture('blue');
+  const cgTexture = createCircleTexture('red');
+  const fingerHoleTexture = createCircleTexture('green');
+  const texture = useTexture(fingerHoleTexture);
 
   return (
     <Decal

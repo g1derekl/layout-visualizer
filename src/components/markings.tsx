@@ -1,5 +1,9 @@
 /* global JSX */
-import * as THREE from 'three';
+import {
+  Mesh,
+  Vector3,
+  FrontSide
+} from 'three';
 import React, {
   ReactElement,
   useEffect,
@@ -7,7 +11,7 @@ import React, {
   useState
 } from 'react';
 import { extend } from '@react-three/fiber';
-import { Line } from '@react-three/drei';
+import { Decal, Line, useTexture } from '@react-three/drei';
 
 import { calcPoint } from '../calc/geod';
 
@@ -22,30 +26,24 @@ type MarkerProps = {
 }
 
 function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement | null {
-  const meshRef = useRef<THREE.Mesh>(null!);
-  const [coords, setCoords] = useState<THREE.Vector3>(new THREE.Vector3(0, 0, 0));
+  const meshRef = useRef<Mesh>(null!);
 
   const { text, color } = props as MarkerProps;
-  const { position } = props as { position: THREE.Vector3 };
-
-  const getOffsetCoords = (): void => {
-    const offsetCoords = calcPoint(position, 0.25, 270);
-    setCoords(offsetCoords);
-  };
+  const { position } = props as { position: Vector3 };
+  const coords = calcPoint(position, 0.25, 270);
 
   useEffect(() => {
     if (meshRef.current) {
       const mesh = meshRef.current;
-      const lookDirection = new THREE.Vector3();
-      const target = new THREE.Vector3();
+      const lookDirection = new Vector3();
+      const target = new Vector3();
 
-      lookDirection.subVectors(mesh.position, new THREE.Vector3(0, 0, 0)).normalize();
+      lookDirection.subVectors(mesh.position, new Vector3(0, 0, 0)).normalize();
       target.copy(mesh.position).add(lookDirection);
 
       mesh.lookAt(target);
     }
-    getOffsetCoords();
-  }, [position, meshRef.current]);
+  }, [meshRef.current]);
 
   return (
     <mesh
@@ -56,7 +54,7 @@ function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): React
     >
       { /* @ts-ignore */ }
       <text color={color} fontSize={0.25} text={text} anchorX="right" anchorY="middle">
-        <meshBasicMaterial side={THREE.FrontSide} />
+        <meshBasicMaterial side={FrontSide} />
       </text>
     </mesh>
   );
@@ -67,10 +65,28 @@ MarkingLabel.defaultProps = {
   color: 'darkgray'
 };
 
+/**
+ * Create a canvas and draw a circle on it to use as a texture for the ball model
+ * @returns a URL for loading the texture
+ */
+function createCircleTexture(color?: string): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = 100;
+  canvas.height = 100;
+  if (canvas.getContext) {
+    const context = canvas.getContext('2d');
+    context!.arc(50, 50, 50, 0, 2 * Math.PI);
+    context!.fillStyle = color || 'black';
+    context!.fill();
+  }
+  return canvas.toDataURL();
+}
+
 export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement {
-  const meshRef = useRef<THREE.Mesh>(null!);
+  const meshRef = useRef<Mesh>(null!);
 
   const { color, text, radius } = props as MarkerProps;
+  const texture = useTexture(createCircleTexture(color));
   const { position } = props as JSX.IntrinsicElements['mesh'];
 
   useEffect(() => {
@@ -81,14 +97,12 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
 
   return (
     <>
-      <mesh
-        {...props}
+      <Decal
+        position={position}
+        scale={radius ? radius * 2 : 1}
+        map={texture}
         ref={meshRef}
-        scale={1}
-      >
-        <circleGeometry args={[radius, 16]} />
-        <meshStandardMaterial color={color} side={THREE.BackSide} />
-      </mesh>
+      />
       <MarkingLabel text={text} color={color} position={position} />
     </>
   );
@@ -102,17 +116,17 @@ DotMark.defaultProps = {
 
 // Adapted from https://stackoverflow.com/a/42721392/1573031
 function setArc3D(
-  pointStart: THREE.Vector3,
-  pointEnd: THREE.Vector3,
+  pointStart: Vector3,
+  pointEnd: Vector3,
   clockWise: boolean,
   smoothness = 256,
-): THREE.Vector3[] {
+): Vector3[] {
   // calculate normal
-  const cb = new THREE.Vector3();
-  const ab = new THREE.Vector3();
-  const normal = new THREE.Vector3();
+  const cb = new Vector3();
+  const ab = new Vector3();
+  const normal = new Vector3();
 
-  cb.subVectors(new THREE.Vector3(), pointEnd);
+  cb.subVectors(new Vector3(), pointEnd);
   ab.subVectors(pointStart, pointEnd);
   cb.cross(ab);
   normal.copy(cb).normalize();
@@ -135,8 +149,8 @@ function setArc3D(
 }
 
 type CircumferenceLineProps = {
-  pointStart: THREE.Vector3;
-  pointEnd: THREE.Vector3;
+  pointStart: Vector3;
+  pointEnd: Vector3;
   color: string;
   direction?: string
 }

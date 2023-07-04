@@ -8,29 +8,29 @@ import {
   PerspectiveCamera,
   ArcballControls
 } from '@react-three/drei';
+import { Vector3 } from 'three';
 
 import styles from '../styles/Home.module.css';
 
 import Ball from '../src/components/ball';
-import MarkingCanvas from '../src/modules/markingCanvas';
+import BallMarkings from '../src/modules/ballMarkings';
+import { PIN_COORDS } from '../src/calc/constants';
 
 const { Text } = require('troika-three-text');
 
-extend({ Text });
-// import BallMarkings from '../src/modules/ballMarkings';
 // import LayoutMarkings from '../src/modules/layoutMarkings';
-// import { PIN_COORDS } from '../src/calc/constants';
 // import GripMarkings from '../src/modules/gripMarkings';
+extend({ Text });
 
 export default function Home(): ReactElement {
   const [aspectRatio, setAspectRatio] = useState(0);
-  // const [cgCoords, setCgCoords] = useState<Vector3 | undefined>();
-  // const [gripCenterCoords, setGripCenterCoords] = useState<Vector3 | undefined>();
-  // const [midlineCoords, setMidlineCoords] = useState<Vector3 | undefined>();
+  const [cgCoords, setCgCoords] = useState<Vector3 | undefined>();
+  const [gripCenterCoords, setGripCenterCoords] = useState<Vector3 | undefined>();
+  const [midlineCoords, setMidlineCoords] = useState<Vector3 | undefined>();
 
-  // const pinCoords = PIN_COORDS;
-  // const leftSpan = 4 + 1 / 4;
-  // const rightSpan = 4 + 1 / 4;
+  const pinCoords = PIN_COORDS;
+  const leftSpan = 4 + 1 / 4;
+  const rightSpan = 4 + 1 / 4;
 
   useEffect(() => {
     if (window) {
@@ -44,15 +44,14 @@ export default function Home(): ReactElement {
         <PerspectiveCamera makeDefault args={[50, aspectRatio, 1, 1000]} position={[0, 0, 11]} />
         <ambientLight />
         <Ball position={[0, 0, 0]}>
-          <MarkingCanvas />
+          <BallMarkings
+            pinDistance={2.5}
+            pinCoords={pinCoords}
+            cgCoords={cgCoords}
+            setCgCoords={setCgCoords}
+          />
         </Ball>
-        {/* <BallMarkings
-          pinDistance={2.5}
-          pinCoords={pinCoords}
-          cgCoords={cgCoords}
-          setCgCoords={setCgCoords}
-        />
-        {
+        {/* {
             cgCoords && (
               <LayoutMarkings
                 pinCoords={pinCoords}
