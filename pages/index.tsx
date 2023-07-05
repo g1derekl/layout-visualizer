@@ -13,7 +13,12 @@ import {
 import InputForm from '../src/components/input';
 import Ball from '../src/components/ball';
 import BallMarkings from '../src/modules/ballMarkings';
-import { BALL_SPECS, BOWLER_SPECS, LAYOUT, PIN_COORDS } from '../src/calc/constants';
+import {
+  BALL_SPECS,
+  BOWLER_SPECS,
+  LAYOUT,
+  PIN_COORDS
+} from '../src/calc/constants';
 import LayoutMarkings from '../src/modules/layoutMarkings';
 import GripMarkings from '../src/modules/gripMarkings';
 import { calcPoint } from '../src/calc/geod';
@@ -43,9 +48,7 @@ export default function Home(): ReactElement {
   const [specs, setSpecs] = useState<BallSpecs & BowlerSpecs & Layout>({
     ...BALL_SPECS, ...BOWLER_SPECS, ...LAYOUT
   });
-  const [markings, setMarkings] = useState<Markings>({
-    pinCoords
-  });
+  const [markings, setMarkings] = useState<Markings>();
 
   const calcLayout = (): void => {
     // Find the location of the CG in relation to the pin
@@ -124,22 +127,21 @@ export default function Home(): ReactElement {
         <ambientLight />
         <Ball position={[0, 0, 0]}>
           {
-            markings && markings.pinCoords && (
+            markings && (
               <BallMarkings {...markings} />
             )
           }
           {
-            markings && markings.papCoords && markings.valCoords && markings.gripCenterCoords && (
+            markings && (
               <LayoutMarkings {...markings} />
             )
           }
           {
-            markings && markings.gripCenterCoords && markings.midlineCoords && specs && (
+            markings && (
               <GripMarkings
+                {...specs}
                 gripCenterCoords={markings.gripCenterCoords!}
                 midlineCoords={markings.midlineCoords!}
-                leftSpan={specs.leftSpan}
-                rightSpan={specs.rightSpan}
               />
             )
           }

@@ -17,11 +17,6 @@ import {
 } from './geod';
 import { getArcAngle } from './trig';
 
-export type FingerCoords = {
-  leftFingerCoords: Vector3;
-  rightFingerCoords: Vector3;
-};
-
 export type CenterLineCoords = {
   bridgeCenterCoords: Vector3;
   thumbEdgeCoords: Vector3;
@@ -268,37 +263,36 @@ export function getFingerCoordsWithThumbhole(
 export function getFingerCoordsWithoutThumbhole(
   gripCenterCoords: Vector3,
   midlineCoords: Vector3,
-  leftFingerSize: number,
-  rightFingerSize: number,
+  fingerSize: number,
   bridge: number,
-  leftHanded: boolean
-): FingerCoords {
-  const gripCenterToLeftFingerDistance = bridge / 2 + leftFingerSize / 2;
-  const gripCenterToRightFingerDistance = bridge / 2 + rightFingerSize / 2;
+  leftHanded: boolean,
+  side: 'left' | 'right'
+): Vector3 {
+  const gripCenterToFingerDistance = bridge / 2 + fingerSize / 2;
 
   const gripCenterToMidlineBearing = calcBearing(gripCenterCoords, midlineCoords);
 
-  let leftFingerBearing: number;
-  let rightFingerBearing: number;
+  // let leftFingerBearing: number;
+  // let rightFingerBearing: number;
+  let fingerBearing: number;
 
   if (leftHanded) {
-    leftFingerBearing = gripCenterToMidlineBearing;
-    rightFingerBearing = <number>normalizeBearing(gripCenterToMidlineBearing + 180);
+    if (side === 'left') {
+      fingerBearing = gripCenterToMidlineBearing;
+    } else {
+      fingerBearing = <number>normalizeBearing(gripCenterToMidlineBearing + 180);
+    }
+  } else if (side === 'left') {
+    fingerBearing = <number>normalizeBearing(gripCenterToMidlineBearing + 180);
   } else {
-    leftFingerBearing = <number>normalizeBearing(gripCenterToMidlineBearing + 180);
-    rightFingerBearing = gripCenterToMidlineBearing;
+    fingerBearing = gripCenterToMidlineBearing;
   }
 
-  const leftFingerCoords = calcPoint(
+  const fingerCoords = calcPoint(
     gripCenterCoords,
-    gripCenterToLeftFingerDistance,
-    leftFingerBearing
-  );
-  const rightFingerCoords = calcPoint(
-    gripCenterCoords,
-    gripCenterToRightFingerDistance,
-    rightFingerBearing
+    gripCenterToFingerDistance,
+    fingerBearing
   );
 
-  return { leftFingerCoords, rightFingerCoords };
+  return fingerCoords;
 }

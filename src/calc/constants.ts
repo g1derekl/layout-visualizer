@@ -18,7 +18,10 @@ export const BOWLER_SPECS: BowlerSpecs = {
   rightSpan: 3.5,
   bridge: 0.25,
   leftHanded: false,
-  thumbHole: true
+  thumbHole: true,
+  leftFingerSize: 31 / 32,
+  rightFingerSize: 31 / 32,
+  thumbSize: 1 + 1 / 2
 };
 
 export const LAYOUT: Layout = {

@@ -1,11 +1,8 @@
 import React, {
   ReactElement,
-  useEffect,
-  useState
 } from 'react';
 import { Vector3 } from 'three';
 import {
-  FingerCoords,
   getCenterLineEndpointsWithThumbhole,
   getFingerCoordsWithoutThumbhole,
   getFingerCoordsWithThumbhole
@@ -15,14 +12,14 @@ import { DotMark, LineMark } from '../components/markings';
 type GripMarkingsProps = {
   gripCenterCoords: Vector3;
   midlineCoords: Vector3;
-  leftSpan?: number;
-  rightSpan?: number;
-  leftFingerSize?: number;
-  rightFingerSize?: number;
-  bridge?: number;
-  thumbHole?: boolean;
-  thumbSize?: number;
-  leftHanded?: boolean;
+  leftSpan: number;
+  rightSpan: number;
+  leftFingerSize: number;
+  rightFingerSize: number;
+  bridge: number;
+  thumbHole: boolean;
+  thumbSize: number | null;
+  leftHanded: boolean;
 }
 
 type CenterLineProps = {
@@ -76,77 +73,69 @@ export default function GripMarkings({
   thumbSize,
   leftHanded
 }: GripMarkingsProps): ReactElement {
-  const [bridgeCenterCoords, setBridgeCenterCoords] = useState<Vector3 | null>(null);
-  const [thumbEdgeCoords, setThumbEdgeCoords] = useState<Vector3 | null>(null);
-  const [thumbHoleCoords, setThumbHoleCoords] = useState<Vector3 | null>(null);
-  const [fingerHoleCoords, setFingerHoleCoords] = useState<FingerCoords | null>(null);
+  let leftFingerCoords: Vector3;
+  let rightFingerCoords: Vector3;
+  let bridgeCenterCoords: Vector3 | null = null;
+  let thumbEdgeCoords: Vector3 | null = null;
+  let thumbCenterCoords: Vector3 | null = null;
 
-  const findCenterLine = (): void => {
-    const {
-      bridgeCenterCoords: bridgeCenter,
-      thumbEdgeCoords: thumbEdge,
-      thumbCenterCoords: thumbCenter
+  if (thumbHole) {
+    ({
+      bridgeCenterCoords,
+      thumbEdgeCoords,
+      thumbCenterCoords
     } = getCenterLineEndpointsWithThumbhole(
       gripCenterCoords,
       midlineCoords,
       leftSpan,
       rightSpan,
-      leftFingerSize!,
-      rightFingerSize!,
+      leftFingerSize,
+      rightFingerSize,
       thumbSize!,
-      leftHanded!
+      leftHanded
+    ));
+
+    leftFingerCoords = getFingerCoordsWithThumbhole(
+      bridgeCenterCoords,
+      thumbCenterCoords,
+      leftSpan,
+      leftFingerSize,
+      thumbSize!,
+      bridge,
+      'left'
     );
+    rightFingerCoords = getFingerCoordsWithThumbhole(
+      bridgeCenterCoords,
+      thumbCenterCoords,
+      rightSpan,
+      rightFingerSize,
+      thumbSize!,
+      bridge,
+      'right'
+    );
+  } else {
+    leftFingerCoords = getFingerCoordsWithoutThumbhole(
+      gripCenterCoords,
+      midlineCoords,
+      leftFingerSize,
+      bridge,
+      leftHanded,
+      'left'
+    );
+    rightFingerCoords = getFingerCoordsWithoutThumbhole(
+      gripCenterCoords,
+      midlineCoords,
+      leftFingerSize,
+      bridge,
+      leftHanded,
+      'left'
+    );
+  }
 
-    setBridgeCenterCoords(bridgeCenter);
-    setThumbEdgeCoords(thumbEdge);
-    setThumbHoleCoords(thumbCenter);
+  const fingerHoleCoords = {
+    leftFingerCoords,
+    rightFingerCoords
   };
-
-  const mapGripHoles = (): void => {
-    if (thumbHole) {
-      const leftFingerCoords = getFingerCoordsWithThumbhole(
-        bridgeCenterCoords!,
-        thumbHoleCoords!,
-        leftSpan,
-        leftFingerSize!,
-        thumbSize!,
-        bridge!,
-        'left'
-      );
-      const rightFingerCoords = getFingerCoordsWithThumbhole(
-        bridgeCenterCoords!,
-        thumbHoleCoords!,
-        rightSpan,
-        rightFingerSize!,
-        thumbSize!,
-        bridge!,
-        'right'
-      );
-      setFingerHoleCoords({
-        leftFingerCoords,
-        rightFingerCoords
-      });
-    } else {
-      setFingerHoleCoords(getFingerCoordsWithoutThumbhole(
-        gripCenterCoords,
-        midlineCoords,
-        leftFingerSize!,
-        rightFingerSize!,
-        bridge!,
-        leftHanded!
-      ));
-    }
-  };
-
-  useEffect(() => {
-    findCenterLine();
-  }, []);
-
-  useEffect(() => {
-    if (bridgeCenterCoords && (thumbEdgeCoords || !thumbHole)) {
-      mapGripHoles();
-    }
-  }, [bridgeCenterCoords, thumbEdgeCoords]);
 
   return (
     <>
@@ -168,19 +157,8 @@ export default function GripMarkings({
         )
       }
       {
-        thumbHole && thumbHoleCoords && <ThumbHole coords={thumbHoleCoords} size={thumbSize!} />
+        thumbHole && thumbCenterCoords && <ThumbHole coords={thumbCenterCoords} size={thumbSize!} />
       }
     </>
   );
 }
-
-GripMarkings.defaultProps = {
-  bridge: 1 / 4,
-  thumbHole: true,
-  leftSpan: null,
-  rightSpan: null,
-  leftFingerSize: 31 / 32,
-  rightFingerSize: 31 / 32,
-  thumbSize: 1 + 1 / 2,
-  leftHanded: false
-};
