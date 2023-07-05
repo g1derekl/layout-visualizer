@@ -11,13 +11,21 @@ import React, {
   useState
 } from 'react';
 import { extend } from '@react-three/fiber';
-import { Decal, Line, useTexture } from '@react-three/drei';
+import { Decal, Html, Line, useTexture } from '@react-three/drei';
 
 import { calcPoint } from '../calc/geod';
 
 const { Text } = require('troika-three-text');
 
 extend({ Text });
+
+const LABEL_STYLE = {
+  font: '1.25rem sans-serif',
+  background: '#303030',
+  padding: '0.25rem',
+  color: 'whitesmoke',
+  borderRadius: '5px'
+};
 
 type MarkerProps = {
   text?: string;
@@ -28,9 +36,9 @@ type MarkerProps = {
 function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement | null {
   const meshRef = useRef<Mesh>(null!);
 
-  const { text, color } = props as MarkerProps;
+  const { text } = props as MarkerProps;
   const { position } = props as { position: Vector3 };
-  const coords = calcPoint(position, 0.25, 270);
+  const coords = position.clone().addScalar(0.15);
 
   useEffect(() => {
     if (meshRef.current) {
@@ -52,10 +60,9 @@ function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): React
       position={coords}
       scale={[1, 1, 1]}
     >
-      { /* @ts-ignore */ }
-      <text color={color} fontSize={0.25} text={text} anchorX="right" anchorY="middle">
-        <meshBasicMaterial side={FrontSide} />
-      </text>
+      <Html occlude>
+        <div className="label" style={{ ...LABEL_STYLE }}>{text}</div>
+      </Html>
     </mesh>
   );
 }
@@ -103,7 +110,9 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
         map={texture}
         ref={meshRef}
       />
-      <MarkingLabel text={text} color={color} position={position} />
+      {
+        text && <MarkingLabel text={text} color={color} position={position} />
+      }
     </>
   );
 }

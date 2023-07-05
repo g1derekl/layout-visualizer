@@ -15,8 +15,8 @@ import { DotMark, LineMark } from '../components/markings';
 type GripMarkingsProps = {
   gripCenterCoords: Vector3;
   midlineCoords: Vector3;
-  leftSpan: number;
-  rightSpan: number;
+  leftSpan?: number;
+  rightSpan?: number;
   leftFingerSize?: number;
   rightFingerSize?: number;
   bridge?: number;
@@ -177,6 +177,8 @@ export default function GripMarkings({
 GripMarkings.defaultProps = {
   bridge: 1 / 4,
   thumbHole: true,
+  leftSpan: null,
+  rightSpan: null,
   leftFingerSize: 31 / 32,
   rightFingerSize: 31 / 32,
   thumbSize: 1 + 1 / 2,
