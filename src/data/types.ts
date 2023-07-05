@@ -28,3 +28,12 @@ export type Markings = {
   midlineCoords?: Vector3,
   gripCenterCoords?: Vector3
 }
+
+export type Grip = {
+  bridge: number,
+  leftSpan: number,
+  rightSpan: number,
+  leftFingerSize: number,
+  rightFingerSize: number,
+  thumbSize: number
+}

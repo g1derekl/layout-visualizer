@@ -1,19 +1,20 @@
 /* global JSX */
 import {
   Mesh,
-  Vector3,
-  FrontSide
+  Vector3
 } from 'three';
 import React, {
   ReactElement,
   useEffect,
-  useRef,
-  useState
+  useRef
 } from 'react';
 import { extend } from '@react-three/fiber';
-import { Decal, Html, Line, useTexture } from '@react-three/drei';
-
-import { calcPoint } from '../calc/geod';
+import {
+  Decal,
+  Html,
+  Line,
+  useTexture
+} from '@react-three/drei';
 
 const { Text } = require('troika-three-text');
 
@@ -38,7 +39,7 @@ function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): React
 
   const { text } = props as MarkerProps;
   const { position } = props as { position: Vector3 };
-  const coords = position.clone().addScalar(0.15);
+  const coords = position.clone().addScalar(0.2);
 
   useEffect(() => {
     if (meshRef.current) {

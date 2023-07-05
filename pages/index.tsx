@@ -1,18 +1,19 @@
 import React, {
+  ChangeEvent,
   ReactElement,
   useEffect,
   useState
 } from 'react';
-import { Canvas, extend } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import {
   PerspectiveCamera,
   ArcballControls
 } from '@react-three/drei';
-import { Vector3 } from 'three';
 
+import InputForm from '../src/components/input';
 import Ball from '../src/components/ball';
 import BallMarkings from '../src/modules/ballMarkings';
-import { PIN_COORDS } from '../src/calc/constants';
+import { BALL_SPECS, BOWLER_SPECS, LAYOUT, PIN_COORDS } from '../src/calc/constants';
 import LayoutMarkings from '../src/modules/layoutMarkings';
 import GripMarkings from '../src/modules/gripMarkings';
 import { calcPoint } from '../src/calc/geod';
@@ -31,77 +32,58 @@ import {
 
 import styles from '../styles/Home.module.css';
 
-const { Text } = require('troika-three-text');
+// const { Text } = require('troika-three-text');
 
-extend({ Text });
-
-const bowlerSpecs: BowlerSpecs = {
-  papXDistance: 5.25,
-  papYDistance: 0.5,
-  leftSpan: 3.5,
-  rightSpan: 3.5,
-  bridge: 0.25,
-  leftHanded: false,
-  thumbHole: true
-};
-
-const ballSpecs: BallSpecs = {
-  pinDistance: 2.5
-};
-
-const layout: Layout = {
-  drillingAngle: 45,
-  pinToPapDistance: 4.5,
-  valAngle: 45
-};
+// extend({ Text });
 
 export default function Home(): ReactElement {
+  const pinCoords = PIN_COORDS;
+
   const [aspectRatio, setAspectRatio] = useState(0);
-  const [markings, setMarkings] = useState<Markings>();
+  const [specs, setSpecs] = useState<BallSpecs & BowlerSpecs & Layout>({
+    ...BALL_SPECS, ...BOWLER_SPECS, ...LAYOUT
+  });
+  const [markings, setMarkings] = useState<Markings>({
+    pinCoords
+  });
 
   const calcLayout = (): void => {
-    const pinCoords = PIN_COORDS;
-
-    setMarkings({
-      ...markings,
-      pinCoords
-    });
-
     // Find the location of the CG in relation to the pin
-    const cgCoords = calcPoint(pinCoords, ballSpecs.pinDistance, 180);
+    const cgCoords = calcPoint(pinCoords, specs.pinDistance, 180);
+
     // Find the location of the bowler's PAP
     const papCoords = getPapCoords(
       pinCoords,
-      cgCoords!,
-      layout.pinToPapDistance,
-      layout.drillingAngle,
-      bowlerSpecs.leftHanded
+      cgCoords,
+      specs.pinToPapDistance,
+      specs.drillingAngle,
+      specs.leftHanded
     );
 
     // Find the coordinates to draw the VAL
     const valCoords = getValCoords(
       pinCoords,
-      papCoords!,
-      layout.valAngle,
-      bowlerSpecs.leftHanded
+      papCoords,
+      specs.valAngle,
+      specs.leftHanded
     );
 
     // Find the coordinates to draw the midline
     // Multiply papYDistance by -1 because it is normally expressed relative to the midline,
     // not the other way around
     const midlineCoords = getMidlineCoords(
-      papCoords!,
-      valCoords!,
-      bowlerSpecs.papYDistance * -1
+      papCoords,
+      valCoords,
+      specs.papYDistance * -1
     );
 
     // Find the location of the grip center
     const gripCenterCoords = getGripCenterCoords(
-      papCoords!,
-      valCoords!,
-      midlineCoords!,
-      bowlerSpecs.papXDistance,
-      bowlerSpecs.leftHanded
+      papCoords,
+      valCoords,
+      midlineCoords,
+      specs.papXDistance,
+      specs.leftHanded
     );
 
     setMarkings({
@@ -114,25 +96,36 @@ export default function Home(): ReactElement {
     });
   };
 
+  const handleChange = (e: ChangeEvent): void => {
+    const { name, value } = (e.target as HTMLInputElement);
+
+    if (!Number.isNaN(value)) {
+      setSpecs({ ...specs, [name]: parseFloat(value) });
+    } else {
+      setSpecs({ ...specs, [name]: value });
+    }
+  };
+
   useEffect(() => {
     if (window) {
       setAspectRatio(window.innerWidth / (window.innerHeight * 0.8));
     }
-    calcLayout();
   }, []);
+
+  useEffect(() => {
+    calcLayout();
+  }, [specs]);
 
   return (
     <div className={styles.container}>
+      <InputForm onChange={handleChange} values={specs} />
       <Canvas>
         <PerspectiveCamera makeDefault args={[50, aspectRatio, 1, 1000]} position={[0, 0, 11]} />
         <ambientLight />
         <Ball position={[0, 0, 0]}>
           {
-            markings && markings.pinCoords && markings.cgCoords && (
-              <BallMarkings
-                pinCoords={markings.pinCoords}
-                cgCoords={markings.cgCoords}
-              />
+            markings && markings.pinCoords && (
+              <BallMarkings {...markings} />
             )
           }
           {
@@ -141,12 +134,12 @@ export default function Home(): ReactElement {
             )
           }
           {
-            markings && (
+            markings && markings.gripCenterCoords && markings.midlineCoords && specs && (
               <GripMarkings
                 gripCenterCoords={markings.gripCenterCoords!}
                 midlineCoords={markings.midlineCoords!}
-                leftSpan={bowlerSpecs.leftSpan}
-                rightSpan={bowlerSpecs.rightSpan}
+                leftSpan={specs.leftSpan}
+                rightSpan={specs.rightSpan}
               />
             )
           }
