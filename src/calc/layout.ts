@@ -86,7 +86,7 @@ export function getValCoords(
     valAngleBearing = <number>normalizeBearing(papToPinBearing + valAngle);
   }
 
-  const valCoords = calcPoint(papCoords, 1, valAngleBearing);
+  const valCoords = calcPoint(papCoords, 2, valAngleBearing);
 
   return valCoords;
 }
@@ -208,15 +208,15 @@ export function getCenterLineEndpointsWithThumbhole(
 /**
  * Find the location of a finger hole, whose edge is [span] inches away from the edge
  * of the thumb hole and [bridge / 2] inches away from the nearest point on the center line.
- * @param {Vector3} bridgeCenterCoords coordinates of one endpoint of the center line
- * @param {Vector3} thumbCenterCoords fdgdfg
- * @param {number} span the player's left or right span, depending on side
- * @param {number} fingerSize the diameter of the finger hole
- * @param {number} thumbSize the diameter of the thumb hole
- * @param {number} bridge the combined distance between the edge of two finger holes
+ * @param {Vector3} bridgeCenterCoords - coordinates of one endpoint of the center line
+ * @param {Vector3} thumbCenterCoords - coordinates of the center of the thumb hole
+ * @param {number} span - the player's left or right span, depending on side
+ * @param {number} fingerSize - the diameter of the finger hole
+ * @param {number} thumbSize - the diameter of the thumb hole
+ * @param {number} bridge - the combined distance between the edge of two finger holes
  * and their respective closest points on the center line
- * @param {'left' | 'right'} side which finger hole to find
- * @returns {Vector3} the coordinates of the finger hole
+ * @param {'left' | 'right'} side - which side to find the finger hole for
+ * @returns {Vector3} the coordinates of the center of the finger hole
  */
 export function getFingerCoordsWithThumbhole(
   bridgeCenterCoords: Vector3,
@@ -260,6 +260,18 @@ export function getFingerCoordsWithThumbhole(
   return fingerHoleCenter;
 }
 
+/**
+ * Find the location of a finger hole when no thumb hole is present. In this case,
+ * the holes are simply on either side of the grip center along the midline, separated
+ * by the bridge distance.
+ * @param {Vector3} gripCenterCoords - coordinates of the grip center
+ * @param {Vector3} midlineCoords - coordinates to a point along the midline
+ * @param {number} fingerSize - size of the finger hole
+ * @param {number} bridge - distance between the two finger holes
+ * @param {boolean} leftHanded - true if player is left-handed
+ * @param {'left' | 'right'} side - which side to find the finger hole for
+ * @returns {Vector3} the coordinates of the center of the finger hole
+ */
 export function getFingerCoordsWithoutThumbhole(
   gripCenterCoords: Vector3,
   midlineCoords: Vector3,
@@ -272,8 +284,6 @@ export function getFingerCoordsWithoutThumbhole(
 
   const gripCenterToMidlineBearing = calcBearing(gripCenterCoords, midlineCoords);
 
-  // let leftFingerBearing: number;
-  // let rightFingerBearing: number;
   let fingerBearing: number;
 
   if (leftHanded) {

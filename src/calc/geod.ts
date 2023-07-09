@@ -4,6 +4,13 @@ import { BALL_RADIUS as RADIUS } from './constants';
 
 type CartesianCoords = [number, number, number];
 
+/**
+ * Given two points on a sphere (represented by Cartesian coordinates),
+ * calculate the distance between those two points.
+ * @param {Vector3} startCoords - coordinates of the starting point
+ * @param {Vector3} destCoords - coordinates of the destination point
+ * @returns {number} the distance between the two given points
+ */
 export function calcDistance(
   startCoords: Vector3,
   destCoords: Vector3
@@ -55,7 +62,7 @@ export function calcBearing(
  * @param {Vector3} startCoords - coordinates of the starting point
  * @param {number} distance - distance to the destination point
  * @param {number} bearing - compass heading to the destination point, in degrees
- * @returns {Vector3} - Cartesian coordinates to the destination point
+ * @returns {Vector3} Cartesian coordinates to the destination point
  */
 export function calcPoint(
   startCoords: Vector3,

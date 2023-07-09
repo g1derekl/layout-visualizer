@@ -36,6 +36,7 @@ import {
 } from '../src/data/types';
 
 import styles from '../styles/Home.module.css';
+import Annotations from '../src/modules/annotations';
 
 // const { Text } = require('troika-three-text');
 
@@ -134,6 +135,11 @@ export default function Home(): ReactElement {
           {
             markings && (
               <LayoutMarkings {...markings} />
+            )
+          }
+          {
+            markings && (
+              <Annotations {...markings} {...specs} />
             )
           }
           {

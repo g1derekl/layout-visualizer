@@ -28,7 +28,7 @@ export default function Ball({
       {
         SHOW_EDGES && <Edges scale={1} threshold={0} color="gray" />
       }
-      <meshBasicMaterial opacity={1} color="white" />
+      <meshBasicMaterial opacity={0.5} transparent color="white" />
       {props.children}
     </mesh>
   );

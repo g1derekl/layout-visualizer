@@ -5,19 +5,19 @@ import React, {
 import { DotMark, LineMark } from '../components/markings';
 import { Markings } from '../data/types';
 
-type BaseToVaLineProps = {
-  pinCoords: Vector3,
-  papCoords: Vector3
+type BaseToVaLineMarkProps = {
+  pinCoords: Vector3;
+  papCoords: Vector3;
 }
 
-function BaseToVaLine({
+function BaseToVaLineMark({
   pinCoords,
   papCoords
-}: BaseToVaLineProps): ReactElement | null {
+}: BaseToVaLineMarkProps): ReactElement {
   return (
     <>
       <DotMark position={papCoords} text="PAP" color="navy" />
-      <LineMark pointStart={pinCoords} pointEnd={papCoords} color="darkslateblue" />
+      <LineMark pointStart={pinCoords} pointEnd={papCoords} color="darkslateblue" direction="counterclockwise" />
     </>
   );
 }
@@ -33,9 +33,9 @@ export default function LayoutMarkings({
   return (
     <>
       {/* Baseline (pin to CG) */}
-      <LineMark pointStart={pinCoords} pointEnd={cgCoords!} color="orangered" />
+      <LineMark pointStart={pinCoords} pointEnd={cgCoords!} color="orangered" direction="counterclockwise" />
       {/* Line from pin to PAP */}
-      <BaseToVaLine pinCoords={pinCoords} papCoords={papCoords!} />
+      <BaseToVaLineMark pinCoords={pinCoords} papCoords={papCoords!} />
       {/* VAL line */}
       <LineMark pointStart={papCoords!} pointEnd={valCoords!} color="magenta" />
       {/* Midline */}

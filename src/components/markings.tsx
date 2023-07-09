@@ -1,24 +1,24 @@
+/* eslint-disable no-lonely-if */
 /* global JSX */
 import {
+  Box3,
   Mesh,
   Vector3
 } from 'three';
 import React, {
   ReactElement,
   useEffect,
-  useRef
+  useRef,
+  useState
 } from 'react';
-import { extend } from '@react-three/fiber';
 import {
+  CatmullRomLine,
   Decal,
   Html,
   Line,
   useTexture
 } from '@react-three/drei';
-
-const { Text } = require('troika-three-text');
-
-extend({ Text });
+import { calcBearing, calcPoint, normalizeBearing } from '../calc/geod';
 
 const LABEL_STYLE = {
   font: '1.25rem sans-serif',
@@ -32,37 +32,23 @@ type MarkerProps = {
   text?: string;
   color?: string;
   radius?: number;
+  position?: Vector3;
+  style?: any
 }
 
-function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement | null {
-  const meshRef = useRef<Mesh>(null!);
-
-  const { text } = props as MarkerProps;
+export function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement | null {
   const { position } = props as { position: Vector3 };
-  const coords = position.clone().addScalar(0.2);
 
-  useEffect(() => {
-    if (meshRef.current) {
-      const mesh = meshRef.current;
-      const lookDirection = new Vector3();
-      const target = new Vector3();
-
-      lookDirection.subVectors(mesh.position, new Vector3(0, 0, 0)).normalize();
-      target.copy(mesh.position).add(lookDirection);
-
-      mesh.lookAt(target);
-    }
-  }, [meshRef.current]);
+  const { text, style } = props as MarkerProps;
 
   return (
     <mesh
       {...props}
-      ref={meshRef}
-      position={coords}
       scale={[1, 1, 1]}
+      position={position}
     >
       <Html occlude>
-        <div className="label" style={{ ...LABEL_STYLE }}>{text}</div>
+        <div className="label" style={{ ...LABEL_STYLE, ...style }}>{text}</div>
       </Html>
     </mesh>
   );
@@ -70,21 +56,22 @@ function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): React
 
 MarkingLabel.defaultProps = {
   text: '',
-  color: 'darkgray'
+  color: 'whitesmoke',
+  background: '#303030'
 };
 
 /**
  * Create a canvas and draw a circle on it to use as a texture for the ball model
  * @returns a URL for loading the texture
  */
-function createCircleTexture(color?: string): string {
+function createCircleTexture(color: string = 'black'): string {
   const canvas = document.createElement('canvas');
   canvas.width = 100;
   canvas.height = 100;
   if (canvas.getContext) {
     const context = canvas.getContext('2d');
     context!.arc(50, 50, 50, 0, 2 * Math.PI);
-    context!.fillStyle = color || 'black';
+    context!.fillStyle = color;
     context!.fill();
   }
   return canvas.toDataURL();
@@ -103,6 +90,10 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
     }
   }, [meshRef.current]);
 
+  const markerStyle = {
+    color: 'whitesmoke'
+  };
+
   return (
     <>
       <Decal
@@ -112,7 +103,13 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
         ref={meshRef}
       />
       {
-        text && <MarkingLabel text={text} color={color} position={position} />
+        text && (
+          <MarkingLabel
+            text={text}
+            style={markerStyle}
+            position={(position as Vector3).clone().addScalar(0.2)}
+          />
+        )
       }
     </>
   );
@@ -128,7 +125,7 @@ DotMark.defaultProps = {
 function setArc3D(
   pointStart: Vector3,
   pointEnd: Vector3,
-  clockWise: boolean,
+  clockwise: boolean,
   smoothness = 256,
 ): Vector3[] {
   // calculate normal
@@ -143,7 +140,7 @@ function setArc3D(
 
   // get angle between vectors
   let angle = pointStart.angleTo(pointEnd);
-  if (clockWise) {
+  if (clockwise) {
     angle -= Math.PI * 2;
   }
 
@@ -191,3 +188,81 @@ export function LineMark({
 LineMark.defaultProps = {
   direction: 'both'
 };
+
+type AngleMarkProps = {
+  center: Vector3;
+  pointA: Vector3;
+  pointB: Vector3;
+  angle: number;
+  clockwise: boolean,
+  label: string;
+}
+
+export function AngleMark({
+  center,
+  pointA,
+  pointB,
+  angle,
+  clockwise,
+  label
+}: AngleMarkProps): ReactElement {
+  // Find the bearings from the center point to the other two points
+  const pointABearing = calcBearing(center, pointA);
+  const pointBBearing = calcBearing(center, pointB);
+
+  let bearing = pointABearing;
+  const points = [];
+
+  if (clockwise) {
+    if (pointABearing < pointBBearing) {
+      while (bearing < pointBBearing) {
+        points.push(calcPoint(center, 0.5, bearing));
+        bearing += 5;
+      }
+    } else {
+      while (bearing < 360) {
+        points.push(calcPoint(center, 0.5, bearing));
+        bearing += 5;
+      }
+      bearing = normalizeBearing(bearing) as number;
+      while (bearing < pointBBearing) {
+        points.push(calcPoint(center, 0.5, bearing));
+        bearing += 5;
+      }
+    }
+  } else {
+    if (pointABearing > pointBBearing) {
+      while (bearing > pointBBearing) {
+        points.push(calcPoint(center, 0.5, bearing));
+        bearing -= 5;
+      }
+    } else {
+      while (bearing > 0) {
+        points.push(calcPoint(center, 0.5, bearing));
+        bearing -= 5;
+      }
+      bearing = normalizeBearing(bearing) as number;
+      while (bearing > pointBBearing) {
+        points.push(calcPoint(center, 0.5, bearing));
+        bearing -= 5;
+      }
+    }
+  }
+  points.push(calcPoint(center, 0.5, pointBBearing));
+
+  const midpoint = points[Math.floor(points.length / 2)];
+  const labelPosition = new Vector3(midpoint.x, midpoint.y, midpoint.z + 0.2);
+
+  const markerStyle = {
+    color: 'midnightblue',
+    background: 'ghostwhite',
+    whiteSpace: 'nowrap'
+  };
+
+  return (
+    <>
+      <CatmullRomLine points={points} color="black" />
+      <MarkingLabel text={`${label}: ${angle}°`} position={labelPosition} style={markerStyle} />
+    </>
+  );
+}
