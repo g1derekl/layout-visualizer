@@ -210,6 +210,22 @@ export function AngleMark({
   const pointABearing = calcBearing(center, pointA);
   const pointBBearing = calcBearing(center, pointB);
 
+  const markerStyle = {
+    color: 'midnightblue',
+    background: 'ghostwhite',
+    whiteSpace: 'nowrap'
+  };
+
+  if (pointABearing === pointBBearing) {
+    return (
+      <MarkingLabel
+        text={`${label}: ${angle}°`}
+        position={center.clone().add(new Vector3(0, 0, 0.25))}
+        style={markerStyle}
+      />
+    );
+  }
+
   let bearing = pointABearing;
   const points = [];
 
@@ -252,12 +268,6 @@ export function AngleMark({
 
   const midpoint = points[Math.floor(points.length / 2)];
   const labelPosition = new Vector3(midpoint.x, midpoint.y, midpoint.z + 0.2);
-
-  const markerStyle = {
-    color: 'midnightblue',
-    background: 'ghostwhite',
-    whiteSpace: 'nowrap'
-  };
 
   return (
     <>

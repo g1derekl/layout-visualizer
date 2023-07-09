@@ -57,14 +57,14 @@ export default function Annotations({
         label="Drilling angle"
       />
       {/* VAL angle */}
-      {/* <AngleMark
+      <AngleMark
         center={papCoords}
         pointA={pinCoords}
         pointB={valCoords}
         angle={valAngle}
         clockwise={!leftHanded}
         label="VAL angle"
-      /> */}
+      />
       {/* Pin to PAP distance */}
       <MarkingLabel
         position={pinToPapDistanceLabelPosition}

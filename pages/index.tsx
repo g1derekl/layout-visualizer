@@ -101,11 +101,11 @@ export default function Home(): ReactElement {
   };
 
   const handleChange = (e: ChangeEvent): void => {
-    const { name, value } = (e.target as HTMLInputElement);
+    const { name, value, type } = (e.target as HTMLInputElement);
 
-    if (!Number.isNaN(value)) {
+    if (value && !Number.isNaN(value)) {
       setSpecs({ ...specs, [name]: parseFloat(value) });
-    } else {
+    } else if (type !== 'number') {
       setSpecs({ ...specs, [name]: value });
     }
   };
