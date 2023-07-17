@@ -1,8 +1,12 @@
 .container {
   margin-top: 3rem;
+  padding: 0 1rem;
+}
+
+.canvas {
   position: absolute;
-  height: 80%;
   width: 100%;
+  height: 70%;
 }
 
 .ui {
@@ -13,6 +17,32 @@
 
 }
 
-.inputForm {
+.inputForm fieldset {
+  line-height: 1.5rem;
+  margin: 0.5rem 0;
+}
 
+.inputForm fieldset label input {
+  margin: 0 0.5rem;
+}
+
+.inputForm fieldset label select {
+  margin: 0 0.5rem;
+}
+
+.inputForm .fractionContainer {
+  display: inline-block;
+  position: relative;
+  padding: 1rem 0;
+  margin-right: 5rem;
+}
+
+.inputForm .fractionContainer input {
+  width: 2rem;
+}
+
+.inputForm .fraction {
+  display: inline-block;
+  position: absolute;
+  top: -10%;
 }

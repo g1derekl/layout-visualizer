@@ -101,9 +101,18 @@ export default function Home(): ReactElement {
   };
 
   const handleChange = (e: ChangeEvent): void => {
-    const { name, value, type } = (e.target as HTMLInputElement);
+    const {
+      name,
+      value,
+      type,
+      checked
+    } = (e.target as HTMLInputElement);
 
-    if (value && !Number.isNaN(value)) {
+    if (type === 'checkbox') {
+      setSpecs({ ...specs, [name]: checked });
+    } else if (name === 'leftHanded') {
+      setSpecs({ ...specs, [name]: (value === 'true') });
+    } else if (value && !Number.isNaN(value)) {
       setSpecs({ ...specs, [name]: parseFloat(value) });
     } else if (type !== 'number') {
       setSpecs({ ...specs, [name]: value });
@@ -123,37 +132,39 @@ export default function Home(): ReactElement {
   return (
     <div className={styles.container}>
       <InputForm onChange={handleChange} values={specs} />
-      <Canvas>
-        <PerspectiveCamera makeDefault args={[50, aspectRatio, 1, 1000]} position={[0, 0, 11]} />
-        <ambientLight />
-        <Ball position={[0, 0, 0]}>
-          {
-            markings && (
-              <BallMarkings {...markings} />
-            )
-          }
-          {
-            markings && (
-              <LayoutMarkings {...markings} />
-            )
-          }
-          {
-            markings && (
-              <Annotations {...markings} {...specs} />
-            )
-          }
-          {
-            markings && (
-              <GripMarkings
-                {...specs}
-                gripCenterCoords={markings.gripCenterCoords!}
-                midlineCoords={markings.midlineCoords!}
-              />
-            )
-          }
-        </Ball>
-        <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
-      </Canvas>
+      <div className={styles.canvas}>
+        <Canvas>
+          <PerspectiveCamera makeDefault args={[50, aspectRatio, 1, 1000]} position={[0, 0, 11]} />
+          <ambientLight />
+          <Ball>
+            {
+              markings && (
+                <BallMarkings {...markings} />
+              )
+            }
+            {
+              markings && (
+                <LayoutMarkings {...markings} />
+              )
+            }
+            {
+              markings && (
+                <Annotations {...markings} {...specs} />
+              )
+            }
+            {
+              markings && (
+                <GripMarkings
+                  {...specs}
+                  gripCenterCoords={markings.gripCenterCoords!}
+                  midlineCoords={markings.midlineCoords!}
+                />
+              )
+            }
+          </Ball>
+          <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
+        </Canvas>
+      </div>
     </div>
   );
 }

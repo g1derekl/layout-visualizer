@@ -1,15 +1,13 @@
 /* eslint-disable no-lonely-if */
 /* global JSX */
 import {
-  Box3,
   Mesh,
   Vector3
 } from 'three';
 import React, {
   ReactElement,
   useEffect,
-  useRef,
-  useState
+  useRef
 } from 'react';
 import {
   CatmullRomLine,
@@ -33,24 +31,17 @@ type MarkerProps = {
   color?: string;
   radius?: number;
   position?: Vector3;
-  style?: any
+  style?: any;
+  placement?: string;
 }
 
 export function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement | null {
-  const { position } = props as { position: Vector3 };
-
-  const { text, style } = props as MarkerProps;
+  const { text, style, position } = props as MarkerProps;
 
   return (
-    <mesh
-      {...props}
-      scale={[1, 1, 1]}
-      position={position}
-    >
-      <Html occlude>
-        <div className="label" style={{ ...LABEL_STYLE, ...style }}>{text}</div>
-      </Html>
-    </mesh>
+    <Html position={position} scale={[1, 1, 1]} occlude>
+      <div className="label" style={{ ...LABEL_STYLE, ...style }}>{text}</div>
+    </Html>
   );
 }
 

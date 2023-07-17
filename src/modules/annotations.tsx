@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Vector3 } from 'three';
-import { AngleMark, LineMark, MarkingLabel } from '../components/markings';
+import { AngleMark, MarkingLabel } from '../components/markings';
 import { calcBearing, calcPoint } from '../calc/geod';
 
 type AnnotationsProps = {
@@ -8,9 +8,13 @@ type AnnotationsProps = {
   papCoords: Vector3;
   cgCoords: Vector3;
   valCoords: Vector3;
-  drillingAngle: number;
+  gripCenterCoords: Vector3;
+  midlineCoords: Vector3;
   pinDistance: number;
   pinToPapDistance: number;
+  papXDistance: number;
+  papYDistance: number;
+  drillingAngle: number;
   valAngle: number;
   leftHanded: boolean;
 }
@@ -20,22 +24,34 @@ export default function Annotations({
   papCoords,
   cgCoords,
   valCoords,
-  drillingAngle,
+  gripCenterCoords,
+  midlineCoords,
   pinDistance,
   pinToPapDistance,
+  papXDistance,
+  papYDistance,
+  drillingAngle,
   valAngle,
   leftHanded
 }: AnnotationsProps): ReactElement {
   const pinDistanceLabelPosition = calcPoint(
-    pinCoords,
-    pinDistance / 2,
-    calcBearing(pinCoords, cgCoords)
+    calcPoint(
+      pinCoords,
+      pinDistance / 2,
+      calcBearing(pinCoords, cgCoords)
+    ),
+    0.5,
+    270
   );
 
   const pinToPapDistanceLabelPosition = calcPoint(
-    pinCoords,
-    pinToPapDistance / 2,
-    calcBearing(pinCoords, papCoords)
+    calcPoint(
+      pinCoords,
+      pinToPapDistance / 2,
+      calcBearing(pinCoords, papCoords)
+    ),
+    0.25,
+    270
   );
 
   const markerStyle = {
@@ -44,6 +60,10 @@ export default function Annotations({
     whiteSpace: 'nowrap',
     textAlign: 'center'
   };
+
+  const papYDistanceLabel = papYDistance > 0
+    ? `${papYDistance}" up`
+    : `${papYDistance}" down`;
 
   return (
     <>
@@ -71,9 +91,10 @@ export default function Annotations({
         text={`PAP distance: ${pinToPapDistance}"`}
         style={markerStyle}
       />
+      {/* PAP measurements */}
       <MarkingLabel
-        position={pinDistanceLabelPosition}
-        text={`CG distance: ${pinDistance}"`}
+        position={gripCenterCoords}
+        text={`PAP: ${papXDistance}" over, ${papYDistanceLabel}`}
         style={markerStyle}
       />
     </>
