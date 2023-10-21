@@ -1,14 +1,26 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-one-expression-per-line */
-import React, { ChangeEvent, ReactElement, useEffect, useState } from 'react';
+import React, {
+  ChangeEvent,
+  ReactElement,
+  useEffect,
+  useState
+} from 'react';
 
 import styles from '../../styles/Home.module.css';
 import { BallSpecs, BowlerSpecs, Layout } from '../data/types';
 
+export type InputChange = {
+  name: string;
+  type: string;
+  value?: string;
+  checked?: boolean;
+}
+
 type FractionInputProps = {
   name: string;
   value: number;
-  onChange: (e: ChangeEvent) => void;
+  onChange: (i: InputChange) => void;
 }
 
 function FractionInput({
@@ -16,33 +28,60 @@ function FractionInput({
   value,
   onChange
 }: FractionInputProps): ReactElement {
-  const [numerators, setNumerators] = useState<number[]>([]);
-  const denominators = [2, 4, 8, 16, 32, 64];
-
-  const handleFraction = (e: ChangeEvent) => {
-
-  };
+  const [integer, setInteger] = useState<number>(Math.floor(value));
+  const [numerators, setNumerators] = useState<number[]>([1]);
+  const [numerator, setNum] = useState<number>(1);
+  const [denominator, setDenom] = useState<number>(2);
+  const denominators = [1, 2, 4, 8, 16, 32, 64];
 
   const updateNumerators = (e: ChangeEvent) => {
-    const denom = parseInt((e.target as HTMLInputElement).value, 10);
+    const elem = e.target as HTMLInputElement;
+    const denom = parseInt(elem.value, 10);
+    setDenom(denom);
+    if (denom === 1) {
+      setNumerators([1]);
+    }
     setNumerators(
       Array.from(Array(denom).keys()).filter((n) => n % 2)
     );
   };
 
+  useEffect(() => {
+    onChange({
+      name,
+      type: 'number',
+      value: (integer + (numerator / denominator)).toString()
+    });
+  }, [numerator, denominator]);
+
   return (
     <>
-      <input name={name} value={value} type="number" />
+      <input
+        name={name}
+        value={integer}
+        onChange={
+          (e: ChangeEvent) => setInteger(parseInt((e.target as HTMLInputElement).value, 10))
+        }
+        type="number"
+      />
       <div className={styles.fraction}>
-        <select>
+        <select
+          value={numerator}
+          onChange={
+            (e: ChangeEvent) => setNum(parseInt((e.target as HTMLInputElement).value, 10))
+          }
+        >
           {numerators.map((n) => (
-            <option value={n}>{n}</option>
+            <option key={n} value={n}>{n}</option>
           ))}
         </select>
         <hr />
-        <select onChange={updateNumerators}>
+        <select
+          value={denominator}
+          onChange={updateNumerators}
+        >
           {denominators.map((n) => (
-            <option value={n}>{n}</option>
+            <option key={n} value={n}>{n}</option>
           ))}
         </select>
       </div>
@@ -51,14 +90,18 @@ function FractionInput({
 }
 
 type InputFormProps = {
-  onChange: (e: ChangeEvent) => void;
+  onChange: (i: InputChange) => void;
   values: BallSpecs & BowlerSpecs & Layout;
 }
 
-export default function InputForm({
+export function InputForm({
   onChange,
   values
 }: InputFormProps): ReactElement {
+  const handleChange = (e: ChangeEvent) => {
+    onChange((e.target as unknown) as InputChange);
+  };
+
   return (
     <div className={styles.ui}>
       <div className={styles.header}>
@@ -71,16 +114,16 @@ export default function InputForm({
             <legend>Bowler specs</legend>
             <label htmlFor="papXDistance">
               What is your PAP (positive axis point)?
-              <input name="papXDistance" type="number" value={values.papXDistance} onChange={onChange} />
+              <input name="papXDistance" type="number" value={values.papXDistance} onChange={handleChange} />
             </label>
             <label htmlFor="papYDistance">
               &times;
-              <input name="papYDistance" type="number" value={values.papYDistance} onChange={onChange} />
+              <input name="papYDistance" type="number" value={values.papYDistance} onChange={handleChange} />
             </label>
             <br />
             <label htmlFor="leftHanded">
               Are you left- or right-handed?
-              <select name="leftHanded" value={values.leftHanded ? 'true' : 'false'} onChange={onChange}>
+              <select name="leftHanded" value={values.leftHanded ? 'true' : 'false'} onChange={handleChange}>
                 <option value="false">Right</option>
                 <option value="true">Left</option>
               </select>
@@ -88,7 +131,7 @@ export default function InputForm({
             <br />
             <label htmlFor="thumbHole">
               Do you use a thumb hole?
-              <input name="thumbHole" type="checkbox" checked={values.thumbHole} value="true" onChange={onChange} />
+              <input name="thumbHole" type="checkbox" checked={values.thumbHole} value="true" onChange={handleChange} />
             </label>
             {
               values.thumbHole && (
@@ -100,15 +143,9 @@ export default function InputForm({
                   </label>
                   <label htmlFor="leftSpan" className={styles.fractionContainer}>
                     What is your { values.leftHanded ? 'middle' : 'ring' } finger span?
-                    <input name="rightSpan" type="number" value={Math.floor(values.rightSpan)} onChange={onChange} />
-                    <div className={styles.fraction}>
-                      <input type="number" />
-                      <hr />
-                      <input type="number" />
-                    </div>
+                    <FractionInput name="rightSpan" value={values.rightSpan} onChange={onChange} />
                   </label>
                   <br />
-                  <i>(For spans, use cut-to-cut measurements)</i>
                 </>
               )
             }
@@ -117,17 +154,17 @@ export default function InputForm({
             <legend>Layout</legend>
             <label htmlFor="drillingAngle">
               What is your desired drilling angle?
-              <input name="drillingAngle" type="number" value={values.drillingAngle} onChange={onChange} />
+              <input name="drillingAngle" type="number" value={values.drillingAngle} onChange={handleChange} />
             </label>
             <br />
             <label htmlFor="pinToPapDistance">
               What is your desired pin to PAP distance?
-              <input name="pinToPapDistance" type="number" value={values.pinToPapDistance} onChange={onChange} />
+              <input name="pinToPapDistance" type="number" value={values.pinToPapDistance} onChange={handleChange} />
             </label>
             <br />
             <label htmlFor="valAngle">
               What is your desired VAL angle?
-              <input name="valAngle" type="number" value={values.valAngle} onChange={onChange} />
+              <input name="valAngle" type="number" value={values.valAngle} onChange={handleChange} />
             </label>
           </fieldset>
         </form>

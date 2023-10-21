@@ -12,6 +12,7 @@
     "@react-three/drei": "9.76.0",
     "@react-three/fiber": "8.13.3",
     "@types/geodesy": "^2.2.3",
+    "fractions": "^1.0.2",
     "geodesy": "^2.4.0",
     "next": "^13.4.7",
     "react": "^18.2.0",

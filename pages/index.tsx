@@ -1,5 +1,4 @@
 import React, {
-  ChangeEvent,
   ReactElement,
   useEffect,
   useState
@@ -10,7 +9,10 @@ import {
   ArcballControls
 } from '@react-three/drei';
 
-import InputForm from '../src/components/input';
+import {
+  InputChange,
+  InputForm
+} from '../src/components/input';
 import Ball from '../src/components/ball';
 import BallMarkings from '../src/modules/ballMarkings';
 import {
@@ -100,13 +102,13 @@ export default function Home(): ReactElement {
     });
   };
 
-  const handleChange = (e: ChangeEvent): void => {
+  const handleChange = (input: InputChange): void => {
     const {
       name,
       value,
       type,
       checked
-    } = (e.target as HTMLInputElement);
+    } = input;
 
     if (type === 'checkbox') {
       setSpecs({ ...specs, [name]: checked });
@@ -117,6 +119,7 @@ export default function Home(): ReactElement {
     } else if (type !== 'number') {
       setSpecs({ ...specs, [name]: value });
     }
+    console.log(specs, '=============');
   };
 
   useEffect(() => {
