@@ -24,6 +24,7 @@
 
 .inputForm fieldset label input {
   margin: 0 0.5rem;
+  width: 4rem;
 }
 
 .inputForm fieldset label select {

@@ -119,7 +119,6 @@ export default function Home(): ReactElement {
     } else if (type !== 'number') {
       setSpecs({ ...specs, [name]: value });
     }
-    console.log(specs, '=============');
   };
 
   useEffect(() => {

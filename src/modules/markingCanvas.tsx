@@ -1,85 +1,10 @@
 import React, {
-  ReactElement,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState
+  ReactElement
 } from 'react';
-import { CanvasTexture, CircleGeometry, Texture, TextureLoader } from 'three';
 import {
-  Circle,
   Decal,
-  PerspectiveCamera,
-  RenderTexture,
-  Text,
-  useTexture,
-  MeshDiscardMaterial,
-  OrthographicCamera
+  useTexture
 } from '@react-three/drei';
-import { useLoader } from '@react-three/fiber';
-
-// export default function MarkingCanvas(): ReactElement {
-//   const canvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'));
-//   const textureRef = useRef<CanvasTexture>();
-
-//   useLayoutEffect(() => {
-//     const canvas = canvasRef.current;
-
-//     canvas.width = 4096;
-//     canvas.height = 4096;
-
-//     const context = canvas.getContext('2d');
-//     if (context) {
-//       context.rect(0, 0, canvas.width, canvas.height);
-//       context.fillStyle = 'gray';
-//       context.fill();
-//       context.fillStyle = 'black';
-//       context.font = '128px sans-serif';
-//       context.fillText('Hello world', 128, 128);
-//     }
-//   }, []);
-
-//   return (
-//     <canvasTexture
-//       ref={textureRef}
-//       attach="map"
-//       image={canvasRef.current}
-//     />
-//   );
-// }
-
-// function GrippingHole(): ReactElement {
-//   return (
-//     <RenderTexture attach="map">
-//       <OrthographicCamera
-//         makeDefault
-//         manual
-//         position={[0, 0, 0]}
-//       />
-//       <color attach="background" args={['yellow']} />
-//       <circleGeometry args={[1, 32]}>
-//         <meshBasicMaterial color="blue" />
-//       </circleGeometry>
-//       {/* <Circle args={[1000, 32]} material-color="blue" position={[0, 0, -1]} /> */}
-//     </RenderTexture>
-//   );
-// }
-
-// function HoleCanvas({
-//   drawHole
-// }: {
-//   drawHole: (context: CanvasRenderingContext2D) => string
-// }): ReactElement {
-//   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-//   useEffect(() => {
-//     const canvas = canvasRef.current;
-//     const context = canvas!.getContext('2d');
-//     drawHole(context!);
-//   }, []);
-
-//   return <canvas ref={canvasRef} />;
-// }
 
 /**
  * Create a canvas and draw a circle on it to use as a texture for the ball model
@@ -99,8 +24,6 @@ function createCircleTexture(color?: string): string {
 }
 
 function BallMarkings(): ReactElement {
-  const pinTexture = createCircleTexture('blue');
-  const cgTexture = createCircleTexture('red');
   const fingerHoleTexture = createCircleTexture('green');
   const texture = useTexture(fingerHoleTexture);
 

@@ -125,7 +125,7 @@ export function InputForm({
             </label>
             <br />
             <label htmlFor="leftHanded">
-              Are you left- or right-handed?
+              Which hand do you bowl with?
               <select name="leftHanded" value={values.leftHanded ? 'true' : 'false'} onChange={handleChange}>
                 <option value="false">Right</option>
                 <option value="true">Left</option>
@@ -140,11 +140,11 @@ export function InputForm({
               values.thumbHole && (
                 <>
                   <br />
-                  <label htmlFor="leftSpan" className={styles.fractionContainer}>
+                  <label htmlFor="leftSpan">
                     What is your { values.leftHanded ? 'ring' : 'middle' } finger span?
                     <input name="leftSpan" type="number" value={values.leftSpan} onChange={handleChange} />
                   </label>
-                  <label htmlFor="leftSpan" className={styles.fractionContainer}>
+                  <label htmlFor="leftSpan">
                     What is your { values.leftHanded ? 'middle' : 'ring' } finger span?
                     <input name="rightSpan" type="number" value={values.rightSpan} onChange={handleChange} />
                   </label>

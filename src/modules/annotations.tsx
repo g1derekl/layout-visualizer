@@ -9,8 +9,6 @@ type AnnotationsProps = {
   cgCoords: Vector3;
   valCoords: Vector3;
   gripCenterCoords: Vector3;
-  midlineCoords: Vector3;
-  pinDistance: number;
   pinToPapDistance: number;
   papXDistance: number;
   papYDistance: number;
@@ -25,8 +23,6 @@ export default function Annotations({
   cgCoords,
   valCoords,
   gripCenterCoords,
-  midlineCoords,
-  pinDistance,
   pinToPapDistance,
   papXDistance,
   papYDistance,
@@ -34,16 +30,6 @@ export default function Annotations({
   valAngle,
   leftHanded
 }: AnnotationsProps): ReactElement {
-  const pinDistanceLabelPosition = calcPoint(
-    calcPoint(
-      pinCoords,
-      pinDistance / 2,
-      calcBearing(pinCoords, cgCoords)
-    ),
-    0.5,
-    270
-  );
-
   const pinToPapDistanceLabelPosition = calcPoint(
     calcPoint(
       pinCoords,
