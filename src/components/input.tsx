@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState
 } from 'react';
+// import Fraction from 'fractions';
 
 import styles from '../../styles/Home.module.css';
 import { BallSpecs, BowlerSpecs, Layout } from '../data/types';
@@ -17,77 +18,79 @@ export type InputChange = {
   checked?: boolean;
 }
 
-type FractionInputProps = {
-  name: string;
-  value: number;
-  onChange: (i: InputChange) => void;
-}
+// type FractionInputProps = {
+//   name: string;
+//   value: number;
+//   onChange: (i: InputChange) => void;
+// }
 
-function FractionInput({
-  name,
-  value,
-  onChange
-}: FractionInputProps): ReactElement {
-  const [integer, setInteger] = useState<number>(Math.floor(value));
-  const [numerators, setNumerators] = useState<number[]>([1]);
-  const [numerator, setNum] = useState<number>(1);
-  const [denominator, setDenom] = useState<number>(2);
-  const denominators = [1, 2, 4, 8, 16, 32, 64];
+// function FractionInput({
+//   name,
+//   value,
+//   onChange
+// }: FractionInputProps): ReactElement {
+//   const fraction = new Fraction(value);
 
-  const updateNumerators = (e: ChangeEvent) => {
-    const elem = e.target as HTMLInputElement;
-    const denom = parseInt(elem.value, 10);
-    setDenom(denom);
-    if (denom === 1) {
-      setNumerators([1]);
-    }
-    setNumerators(
-      Array.from(Array(denom).keys()).filter((n) => n % 2)
-    );
-  };
+//   const [integer, setInteger] = useState<number>(Math.floor(value));
+//   const [numerators, setNumerators] = useState<number[]>([1]);
+//   const [numerator, setNum] = useState<number>(1);
+//   const [denominator, setDenom] = useState<number>(2);
+//   const denominators = [1, 2, 4, 8, 16, 32, 64];
 
-  useEffect(() => {
-    onChange({
-      name,
-      type: 'number',
-      value: (integer + (numerator / denominator)).toString()
-    });
-  }, [numerator, denominator]);
+//   const updateNumerators = (e: ChangeEvent) => {
+//     const elem = e.target as HTMLInputElement;
+//     const denom = parseInt(elem.value, 10);
+//     setDenom(denom);
+//     if (denom === 1) {
+//       setNumerators([1]);
+//     }
+//     setNumerators(
+//       Array.from(Array(denom).keys()).filter((n) => n % 2)
+//     );
+//   };
 
-  return (
-    <>
-      <input
-        name={name}
-        value={integer}
-        onChange={
-          (e: ChangeEvent) => setInteger(parseInt((e.target as HTMLInputElement).value, 10))
-        }
-        type="number"
-      />
-      <div className={styles.fraction}>
-        <select
-          value={numerator}
-          onChange={
-            (e: ChangeEvent) => setNum(parseInt((e.target as HTMLInputElement).value, 10))
-          }
-        >
-          {numerators.map((n) => (
-            <option key={n} value={n}>{n}</option>
-          ))}
-        </select>
-        <hr />
-        <select
-          value={denominator}
-          onChange={updateNumerators}
-        >
-          {denominators.map((n) => (
-            <option key={n} value={n}>{n}</option>
-          ))}
-        </select>
-      </div>
-    </>
-  );
-}
+//   useEffect(() => {
+//     onChange({
+//       name,
+//       type: 'number',
+//       value: (integer + (numerator / denominator)).toString()
+//     });
+//   }, [numerator, denominator]);
+
+//   return (
+//     <>
+//       <input
+//         name={name}
+//         value={integer}
+//         onChange={
+//           (e: ChangeEvent) => setInteger(parseInt((e.target as HTMLInputElement).value, 10))
+//         }
+//         type="number"
+//       />
+//       <div className={styles.fraction}>
+//         <select
+//           value={numerator}
+//           onChange={
+//             (e: ChangeEvent) => setNum(parseInt((e.target as HTMLInputElement).value, 10))
+//           }
+//         >
+//           {numerators.map((n) => (
+//             <option key={n} value={n}>{n}</option>
+//           ))}
+//         </select>
+//         <hr />
+//         <select
+//           value={denominator}
+//           onChange={updateNumerators}
+//         >
+//           {denominators.map((n) => (
+//             <option key={n} value={n}>{n}</option>
+//           ))}
+//         </select>
+//       </div>
+//     </>
+//   );
+// }
 
 type InputFormProps = {
   onChange: (i: InputChange) => void;
@@ -111,7 +114,7 @@ export function InputForm({
       <div className={styles.inputForm}>
         <form>
           <fieldset>
-            <legend>Bowler specs</legend>
+            <legend>Bowler specs (convert fractions to decimals before entering)</legend>
             <label htmlFor="papXDistance">
               What is your PAP (positive axis point)?
               <input name="papXDistance" type="number" value={values.papXDistance} onChange={handleChange} />
@@ -139,11 +142,11 @@ export function InputForm({
                   <br />
                   <label htmlFor="leftSpan" className={styles.fractionContainer}>
                     What is your { values.leftHanded ? 'ring' : 'middle' } finger span?
-                    <FractionInput name="leftSpan" value={values.leftSpan} onChange={onChange} />
+                    <input name="leftSpan" type="number" value={values.leftSpan} onChange={handleChange} />
                   </label>
                   <label htmlFor="leftSpan" className={styles.fractionContainer}>
                     What is your { values.leftHanded ? 'middle' : 'ring' } finger span?
-                    <FractionInput name="rightSpan" value={values.rightSpan} onChange={onChange} />
+                    <input name="rightSpan" type="number" value={values.rightSpan} onChange={handleChange} />
                   </label>
                   <br />
                 </>
