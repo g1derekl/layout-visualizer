@@ -1,6 +1,8 @@
-**This is a work in progress -- it is very early in development and not in a usable state.**
+**This is a work in progress -- it is currently usable but missing some features.**
 
 Visualize the placement of the finger holes in a bowling ball.
+
+Try it here: https://layout-visualizer.vercel.app/
 
 ## Introduction
 
