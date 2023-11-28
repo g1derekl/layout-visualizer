@@ -1,12 +1,8 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-one-expression-per-line */
 import React, {
   ChangeEvent,
   ReactElement,
-  useEffect,
-  useState
 } from 'react';
-// import Fraction from 'fractions';
 
 import styles from '../../styles/Home.module.css';
 import { BallSpecs, BowlerSpecs, Layout } from '../data/types';
@@ -18,81 +14,8 @@ export type InputChange = {
   checked?: boolean;
 }
 
-// type FractionInputProps = {
-//   name: string;
-//   value: number;
-//   onChange: (i: InputChange) => void;
-// }
-
-// function FractionInput({
-//   name,
-//   value,
-//   onChange
-// }: FractionInputProps): ReactElement {
-//   const fraction = new Fraction(value);
-
-//   const [integer, setInteger] = useState<number>(Math.floor(value));
-//   const [numerators, setNumerators] = useState<number[]>([1]);
-//   const [numerator, setNum] = useState<number>(1);
-//   const [denominator, setDenom] = useState<number>(2);
-//   const denominators = [1, 2, 4, 8, 16, 32, 64];
-
-//   const updateNumerators = (e: ChangeEvent) => {
-//     const elem = e.target as HTMLInputElement;
-//     const denom = parseInt(elem.value, 10);
-//     setDenom(denom);
-//     if (denom === 1) {
-//       setNumerators([1]);
-//     }
-//     setNumerators(
-//       Array.from(Array(denom).keys()).filter((n) => n % 2)
-//     );
-//   };
-
-//   useEffect(() => {
-//     onChange({
-//       name,
-//       type: 'number',
-//       value: (integer + (numerator / denominator)).toString()
-//     });
-//   }, [numerator, denominator]);
-
-//   return (
-//     <>
-//       <input
-//         name={name}
-//         value={integer}
-//         onChange={
-//           (e: ChangeEvent) => setInteger(parseInt((e.target as HTMLInputElement).value, 10))
-//         }
-//         type="number"
-//       />
-//       <div className={styles.fraction}>
-//         <select
-//           value={numerator}
-//           onChange={
-//             (e: ChangeEvent) => setNum(parseInt((e.target as HTMLInputElement).value, 10))
-//           }
-//         >
-//           {numerators.map((n) => (
-//             <option key={n} value={n}>{n}</option>
-//           ))}
-//         </select>
-//         <hr />
-//         <select
-//           value={denominator}
-//           onChange={updateNumerators}
-//         >
-//           {denominators.map((n) => (
-//             <option key={n} value={n}>{n}</option>
-//           ))}
-//         </select>
-//       </div>
-//     </>
-//   );
-// }
-
 type InputFormProps = {
+  // eslint-disable-next-line no-unused-vars
   onChange: (i: InputChange) => void;
   values: BallSpecs & BowlerSpecs & Layout;
 }
@@ -141,14 +64,18 @@ export function InputForm({
                 <>
                   <br />
                   <label htmlFor="leftSpan">
-                    What is your { values.leftHanded ? 'ring' : 'middle' } finger span?
+                    What is your { values.leftHanded ? 'ring' : 'middle' } finger span?*
                     <input name="leftSpan" type="number" value={values.leftSpan} onChange={handleChange} />
                   </label>
                   <label htmlFor="leftSpan">
-                    What is your { values.leftHanded ? 'middle' : 'ring' } finger span?
+                    What is your { values.leftHanded ? 'middle' : 'ring' } finger span?*
                     <input name="rightSpan" type="number" value={values.rightSpan} onChange={handleChange} />
                   </label>
                   <br />
+                  <small>
+                    (*Use cut-to-cut spans, i.e. the distance between the edges of holes
+                    without inserts, slugs, interchangeable devices, etc.)
+                  </small>
                 </>
               )
             }

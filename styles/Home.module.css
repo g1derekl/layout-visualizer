@@ -1,12 +1,14 @@
 .container {
-  margin-top: 3rem;
+  height: 100%;
   padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
 .canvas {
-  position: absolute;
-  width: 100%;
-  height: 70%;
+  flex-grow: 1;
+  flex-shrink: 1;
 }
 
 .ui {
@@ -46,4 +48,12 @@
   display: inline-block;
   position: absolute;
   top: -10%;
+}
+
+.notes {
+  overflow-x: auto;
+}
+
+.notes ul {
+  list-style: none;
 }

@@ -39,6 +39,7 @@ import {
 
 import styles from '../styles/Home.module.css';
 import Annotations from '../src/modules/annotations';
+import Notes from '../src/components/notes';
 
 // const { Text } = require('troika-three-text');
 
@@ -136,7 +137,11 @@ export default function Home(): ReactElement {
       <InputForm onChange={handleChange} values={specs} />
       <div className={styles.canvas}>
         <Canvas>
-          <PerspectiveCamera makeDefault args={[50, aspectRatio, 1, 1000]} position={[0, 0, 11]} />
+          <PerspectiveCamera
+            makeDefault
+            args={[50, aspectRatio, 1, 1000]}
+            position={[0, 0, 11]}
+          />
           <ambientLight />
           <Ball>
             {
@@ -167,6 +172,7 @@ export default function Home(): ReactElement {
           <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
         </Canvas>
       </div>
+      <Notes />
     </div>
   );
 }
