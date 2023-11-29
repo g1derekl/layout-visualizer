@@ -14,14 +14,14 @@ export const BALL_SPECS: BallSpecs = {
 export const BOWLER_SPECS: BowlerSpecs = {
   papXDistance: 5.25,
   papYDistance: 0.5,
-  leftSpan: 3.5,
-  rightSpan: 3.5,
+  leftSpan: 4,
+  rightSpan: 4,
   bridge: 0.25,
   leftHanded: false,
   thumbHole: true,
   leftFingerSize: 31 / 32,
   rightFingerSize: 31 / 32,
-  thumbSize: 1 + 1 / 2
+  thumbSize: 1 + 1 / 4
 };
 
 export const LAYOUT: Layout = {

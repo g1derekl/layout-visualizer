@@ -24,30 +24,29 @@
   margin: 0.5rem 0;
 }
 
-.inputForm fieldset label input {
+.inputForm fieldset label {
+  margin: 0.125rem 0;
+  display: block;
+}
+
+.inputForm fieldset input {
   margin: 0 0.5rem;
   width: 4rem;
 }
 
-.inputForm fieldset label select {
+.inputForm fieldset select {
   margin: 0 0.5rem;
 }
 
-.inputForm .fractionContainer {
-  display: inline-block;
-  position: relative;
-  padding: 1rem 0;
-  margin-right: 5rem;
+.inputForm .inputGrid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
-.inputForm .fractionContainer input {
-  width: 3rem;
-}
-
-.inputForm .fraction {
-  display: inline-block;
-  position: absolute;
-  top: -10%;
+.inputForm .inputColumn {
+  min-width: 50%;
 }
 
 .notes {

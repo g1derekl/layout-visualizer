@@ -5,14 +5,15 @@ import styles from '../../styles/Home.module.css';
 export default function Notes(): ReactElement {
   const learnMoreLinks = [
     'https://www.buddiesproshop.com/content/DualAngle.pdf',
-    'http://www.bowlersreference.com/Ball/Layout/Dual.htm'
+    'http://www.bowlersreference.com/Ball/Layout/Dual.htm',
+    'https://wiki.bowlingchat.net/wiki/index.php?title=Measure_Bowlers_Positive_Axis_Point'
   ];
   const githubLink = 'https://github.com/g1derekl/layout-visualizer';
   return (
     <div className={styles.notes}>
       <div>
         <p>
-          This program is not meant to be instructional and I make no guarantees to its accuracy.
+          This program is not meant to be instructional and there are no guarantees to its accuracy.
           Do not use this as a drilling guide. Consult your local pro shop to find the best
           layout and fit for you.
         </p>
