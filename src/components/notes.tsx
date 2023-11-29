@@ -11,7 +11,22 @@ export default function Notes(): ReactElement {
   return (
     <div className={styles.notes}>
       <div>
-        To learn more, visit these pages:
+        <p>
+          This program is not meant to be instructional and I make no guarantees to its accuracy.
+          Do not use this as a drilling guide. Consult your local pro shop to find the best
+          layout and fit for you.
+        </p>
+      </div>
+      <div>
+        <p>
+          Currently, only the dual-angle layout method is supported. In the future,
+          I may look into implementing other measurement systems, e.g. VLS/2LS.
+        </p>
+      </div>
+      <div>
+        <p>
+          To learn more, visit these pages:
+        </p>
         <ul>
           {
             learnMoreLinks.map((link) => (
