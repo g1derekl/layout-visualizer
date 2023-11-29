@@ -19,3 +19,20 @@ body {
 #__next {
   height: 100%;
 }
+
+button {
+  background-color: whitesmoke;
+  box-shadow: none;
+  border: 1px solid gray;
+  padding: 0.25rem 0.75rem;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

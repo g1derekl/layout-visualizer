@@ -6,11 +6,13 @@ import { Vector3 } from 'three';
 import { DotMark } from '../components/markings';
 
 type BallMarkingsProps = {
+  asymm: boolean;
   pinCoords: Vector3;
   cgCoords?: Vector3;
 }
 
 export default function BallMarkings({
+  asymm,
   pinCoords,
   cgCoords,
 }: BallMarkingsProps): ReactElement {
@@ -18,7 +20,7 @@ export default function BallMarkings({
     <>
       <DotMark text="PIN" color="red" position={pinCoords} />
       {
-        cgCoords && <DotMark text="CG" color="green" position={cgCoords} />
+        cgCoords && <DotMark text={asymm ? 'MB' : 'CG'} color="green" position={cgCoords} />
       }
     </>
   );

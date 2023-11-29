@@ -39,7 +39,7 @@ export function MarkingLabel(props: JSX.IntrinsicElements['mesh'] | MarkerProps)
   const { text, style, position } = props as MarkerProps;
 
   return (
-    <Html position={position} scale={[1, 1, 1]} occlude>
+    <Html position={position} scale={[1, 1, 1]} zIndexRange={[1, 0]} occlude>
       <div className="label" style={{ ...LABEL_STYLE, ...style }}>{text}</div>
     </Html>
   );

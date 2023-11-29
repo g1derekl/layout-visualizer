@@ -15,6 +15,7 @@ export type BowlerSpecs = {
 
 export type BallSpecs = {
   pinDistance: number;
+  asymm: false;
 }
 
 export type Layout = {
@@ -24,6 +25,7 @@ export type Layout = {
 }
 
 export type Markings = {
+  asymm: boolean;
   pinCoords: Vector3;
   cgCoords: Vector3;
   papCoords: Vector3;

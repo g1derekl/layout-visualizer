@@ -8,7 +8,8 @@ export const BALL_COORDS = new Vector3(4.25, 64, 32);
 export const BALL_RADIUS = 4.25;
 
 export const BALL_SPECS: BallSpecs = {
-  pinDistance: 2
+  pinDistance: 2,
+  asymm: false
 };
 
 export const BOWLER_SPECS: BowlerSpecs = {
