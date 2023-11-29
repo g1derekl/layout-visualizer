@@ -2,6 +2,7 @@
 import React, {
   ChangeEvent,
   ReactElement,
+  useState,
 } from 'react';
 
 import styles from '../../styles/Home.module.css';
@@ -20,6 +21,13 @@ type InputFormProps = {
   values: BallSpecs & BowlerSpecs & Layout;
 }
 
+type OpenInputs = {
+  specs: boolean;
+  layout: boolean;
+} & {
+  [key: string]: boolean;
+}
+
 export function InputForm({
   onChange,
   values
@@ -28,22 +36,52 @@ export function InputForm({
     onChange((e.target as unknown) as InputChange);
   };
 
+  const [openInputs, setOpenInputs] = useState<OpenInputs>({ specs: false, layout: false });
+
+  const openInputOnMobile = (fieldGroup: string) => {
+    setOpenInputs({ ...openInputs, [fieldGroup]: !openInputs[fieldGroup] });
+  };
+
   return (
     <div className={styles.ui}>
       <div className={styles.header}>
         <h2>Layout Visualizer</h2>
         <h4>Put in your specs and see a 3D model of your drilled ball</h4>
       </div>
+      <div className={styles.openInputModal}>
+        <button
+          type="button"
+          onClick={() => openInputOnMobile('specs')}
+        >
+          Enter your specs
+        </button>
+        <button
+          type="button"
+          onClick={() => openInputOnMobile('layout')}
+        >
+          Enter your desired layout
+        </button>
+      </div>
+      <div
+        className={
+        `${styles.formModalOverlay} ${(openInputs.specs || openInputs.layout) ? styles.visible : ''}`
+        }
+        aria-label="formModalOverlay"
+        role="button"
+        tabIndex={-1}
+        onClick={() => setOpenInputs({ specs: false, layout: false })}
+        onKeyDown={() => {}}
+      />
       <div className={styles.inputForm}>
         <form>
-          <fieldset>
-            <legend>Bowler specs (convert fractions to decimals before entering)</legend>
+          <fieldset className={openInputs.specs ? styles.visible : ''}>
+            <legend>Bowler specs (convert fractions to decimals)</legend>
             <div className={styles.inputGrid}>
               <div className={styles.inputColumn}>
-                <div>
+                <div className={styles.inputRow}>
                   <span>What is your PAP (positive axis point)?</span>
                   <input name="papXDistance" type="number" value={values.papXDistance} onChange={handleChange} />
-                  &times;
+                  &nbsp;&times;&nbsp;
                   <input name="papYDistance" type="number" value={values.papYDistance} onChange={handleChange} />
                 </div>
                 <label htmlFor="leftHanded">
@@ -84,11 +122,11 @@ export function InputForm({
                   <input name="bridge" type="number" value={values.bridge} onChange={handleChange} />
                 </label>
                 <label htmlFor="leftFingerSize">
-                  What is the diameter of your { values.leftHanded ? 'ring' : 'middle' } finger hole?&dagger;
+                  What is the size of your { values.leftHanded ? 'ring' : 'middle' } finger hole?&dagger;
                   <input name="leftFingerSize" type="number" value={values.leftFingerSize} onChange={handleChange} />
                 </label>
                 <label htmlFor="rightFingerSize">
-                  What is the diameter of your { values.leftHanded ? 'middle' : 'ring' } finger hole?&dagger;
+                  What is the size of your { values.leftHanded ? 'middle' : 'ring' } finger hole?&dagger;
                   <input name="rightFingerSize" type="number" value={values.rightFingerSize} onChange={handleChange} />
                 </label>
                 <div>
@@ -101,7 +139,7 @@ export function InputForm({
                   values.thumbHole && (
                     <>
                       <label htmlFor="thumbSize">
-                        What is the diameter of your thumb hole?&Dagger;
+                        What is the size of your thumb hole?&Dagger;
                         <input name="thumbSize" type="number" value={values.thumbSize!} onChange={handleChange} />
                       </label>
                       <div>
@@ -116,7 +154,7 @@ export function InputForm({
               </div>
             </div>
           </fieldset>
-          <fieldset>
+          <fieldset className={openInputs.layout ? styles.visible : ''}>
             <legend>Layout</legend>
             <label htmlFor="drillingAngle">
               What is your desired drilling angle?
@@ -131,6 +169,13 @@ export function InputForm({
               <input name="valAngle" type="number" value={values.valAngle} onChange={handleChange} />
             </label>
           </fieldset>
+          <button
+            onClick={() => setOpenInputs({ specs: false, layout: false })}
+            type="button"
+            className={`${styles.closeInputModal} ${(openInputs.specs || openInputs.layout) ? styles.visible : ''}`}
+          >
+            Close
+          </button>
         </form>
       </div>
     </div>

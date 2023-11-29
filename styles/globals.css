@@ -19,3 +19,10 @@ body {
 #__next {
   height: 100%;
 }
+
+button {
+  background-color: whitesmoke;
+  box-shadow: none;
+  border: 1px solid gray;
+  padding: 0.25rem 0.75rem;
+}
