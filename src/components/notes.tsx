@@ -4,13 +4,29 @@ import styles from '../../styles/Home.module.css';
 
 export default function Notes(): ReactElement {
   const learnMoreLinks = [
-    'https://www.buddiesproshop.com/content/DualAngle.pdf',
-    'http://www.bowlersreference.com/Ball/Layout/Dual.htm',
-    'https://wiki.bowlingchat.net/wiki/index.php?title=Measure_Bowlers_Positive_Axis_Point'
+    {
+      link: 'https://www.buddiesproshop.com/content/DualAngle.pdf',
+      text: 'Understanding dual angle layouts (pdf)'
+    },
+    {
+      link: 'https://wiki.bowlingchat.net/wiki/index.php?title=Measure_Bowlers_Positive_Axis_Point',
+      text: 'How to measure your PAP'
+    },
+    {
+      link: 'https://www.youtube.com/watch?v=51Z9kIqD39U',
+      text: 'How to lay out a bowling ball (YouTube)'
+    }
   ];
   const githubLink = 'https://github.com/g1derekl/layout-visualizer';
   return (
     <div className={styles.notes}>
+      <div>
+        <p>
+          Copyright (c)&nbsp;
+          {new Date().getFullYear()}
+          &nbsp;Derek Li. All rights reserved.
+        </p>
+      </div>
       <div>
         <p>
           This program is not meant to be instructional and there are no guarantees to its accuracy.
@@ -31,8 +47,8 @@ export default function Notes(): ReactElement {
         <ul>
           {
             learnMoreLinks.map((link) => (
-              <li key={link}>
-                <a target="_blank" rel="noreferrer" href={link}>{link}</a>
+              <li key={link.link}>
+                <a target="_blank" rel="noreferrer" href={link.link}>{link.text}</a>
               </li>
             ))
           }
@@ -45,11 +61,6 @@ export default function Notes(): ReactElement {
         </p>
       </div>
       <div>
-        <p>
-          Copyright (c)&nbsp;
-          {new Date().getFullYear()}
-          &nbsp;Derek Li. All rights reserved.
-        </p>
         <p>
           This work is licensed under the terms of the MIT license.
           For a copy, see&nbsp;

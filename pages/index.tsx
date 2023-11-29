@@ -41,10 +41,6 @@ import styles from '../styles/Home.module.css';
 import Annotations from '../src/modules/annotations';
 import Notes from '../src/components/notes';
 
-// const { Text } = require('troika-three-text');
-
-// extend({ Text });
-
 export default function Home(): ReactElement {
   const pinCoords = PIN_COORDS;
 
@@ -94,6 +90,7 @@ export default function Home(): ReactElement {
     );
 
     setMarkings({
+      asymm: specs.asymm,
       pinCoords,
       cgCoords,
       papCoords,
@@ -113,7 +110,7 @@ export default function Home(): ReactElement {
 
     if (type === 'checkbox') {
       setSpecs({ ...specs, [name]: checked });
-    } else if (name === 'leftHanded') {
+    } else if (name === 'leftHanded' || name === 'thumbHole' || name === 'asymm') {
       setSpecs({ ...specs, [name]: (value === 'true') });
     } else if (value && !Number.isNaN(value)) {
       setSpecs({ ...specs, [name]: parseFloat(value) });
