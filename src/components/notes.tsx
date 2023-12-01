@@ -60,14 +60,6 @@ export default function Notes(): ReactElement {
           <a target="_blank" rel="noreferrer" href={githubLink}>{githubLink}</a>
         </p>
       </div>
-      <div>
-        <p>
-          This work is licensed under the terms of the MIT license.
-          For a copy, see&nbsp;
-          <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noreferrer">https://opensource.org/licenses/MIT</a>
-          .
-        </p>
-      </div>
     </div>
   );
 }
