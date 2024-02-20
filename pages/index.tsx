@@ -1,13 +1,16 @@
 import React, {
   ReactElement,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState
 } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   PerspectiveCamera,
-  ArcballControls
+  ArcballControls,
+  Line,
+  OrthographicCamera
 } from '@react-three/drei';
 import {
   Group,
@@ -49,14 +52,14 @@ import Annotations from '../src/modules/annotations';
 import Notes from '../src/components/notes';
 import { degreesToRadians } from '../src/calc/trig';
 
-const AXIS_TILT = 20;
-const AXIS_ROTATION = 35;
-const REV_RATE = 300;
+const AXIS_TILT = 0;
+const AXIS_ROTATION = 0;
+const REV_RATE = 60;
 const ANIMATE = false;
 
 type ContentProps = {
   markings: Markings;
-  specs: BallSpecs & BowlerSpecs & Layout
+  specs: BallSpecs & BowlerSpecs & Layout;
 }
 
 function CanvasContent({
@@ -65,67 +68,107 @@ function CanvasContent({
 }: ContentProps): ReactElement {
   const group = useRef<Group>(null);
 
-  // Using the player's inputted axis rotation and tilt, rotate the ball
-  // so that the player's PAP is facing the correct point relative to the camera.
+  const [aspectRatio, setAspectRatio] = useState(0);
+
+  const foo = 'bar';
+
   useEffect(() => {
     const { papCoords } = markings;
-    const cameraPoint = new Vector3(0, 0, 1);
+    // const cameraPoint = new Vector3(0, 0, 1);
+    const cameraPoint = group.current!.getWorldDirection(new Vector3(0, 0, 0))
+      .multiply(new Vector3(-1, -1, 1));
     const normalizedCoords = papCoords.clone().normalize();
     const q = new Quaternion();
+    console.log(normalizedCoords, cameraPoint, '============');
     q.setFromUnitVectors(normalizedCoords, cameraPoint);
     group.current!.applyMatrix4(new Matrix4().makeRotationFromQuaternion(q));
-  }, []);
-
-  useEffect(() => {
-    group.current!.rotateOnWorldAxis(new Vector3(0, 1, 0), degreesToRadians(AXIS_ROTATION));
-    group.current!.rotateOnWorldAxis(new Vector3(1, 0, 0), degreesToRadians(-1 * AXIS_TILT));
+    // group.current!.rotateOnWorldAxis(
+    //   new Vector3(0, 1, 0),
+    //   (Math.PI / 2) - degreesToRadians(AXIS_ROTATION)
+    // );
+    // group.current!.rotateOnWorldAxis(new Vector3(1, 0, 0), degreesToRadians(-1 * AXIS_TILT));
   }, [AXIS_TILT, AXIS_ROTATION]);
 
-  useFrame((state, delta) => {
-    if (ANIMATE) {
-      // Rotate ball around PAP
-      const rpm = -1 * ((2 * Math.PI) * (delta / 60));
-      group.current!.rotateOnAxis(markings.papCoords.normalize(), rpm * REV_RATE);
+  // useFrame((state, delta) => {
+  //   if (ANIMATE) {
+  //     // Rotate ball around PAP
+  //     const rpm = -1 * ((2 * Math.PI) * (delta / 60));
+  //     group.current!.rotateOnAxis(markings.papCoords.normalize(), rpm * REV_RATE);
+  //   }
+  // });
+
+  useThree((state) => {
+    if (aspectRatio !== state.size.width / state.size.height) {
+      setAspectRatio(state.size.width / state.size.height);
     }
   });
 
   return (
-    <group ref={group}>
-      <Ball>
-        {/* <Line points={[[0, 0, 0], [1, 1, 0]]} /> */}
-        {
-          markings && (
-            <BallMarkings {...markings} />
-          )
-        }
-        {
-          markings && (
-            <LayoutMarkings {...markings} />
-          )
-        }
-        {
-          markings && (
-            <Annotations {...markings} {...specs} />
-          )
-        }
-        {
-          markings && (
-            <GripMarkings
-              {...specs}
-              gripCenterCoords={markings.gripCenterCoords!}
-              midlineCoords={markings.midlineCoords!}
-            />
-          )
-        }
-      </Ball>
-    </group>
+    <>
+      <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
+      <group ref={group}>
+        <Ball>
+          <Line
+            points={[markings.papCoords.clone().negate(), markings.papCoords]}
+            segments={false}
+          />
+          {
+            markings && (
+              <>
+                <BallMarkings {...markings} />
+                <LayoutMarkings {...markings} />
+                <Annotations {...markings} {...specs} />
+                <GripMarkings
+                  {...specs}
+                  gripCenterCoords={markings.gripCenterCoords!}
+                  midlineCoords={markings.midlineCoords!}
+                />
+              </>
+            )
+          }
+          {/* {
+            markings && (
+              <BallMarkings {...markings} />
+            )
+          }
+          {
+            markings && (
+              <LayoutMarkings {...markings} />
+            )
+          }
+          {
+            markings && (
+              <Annotations {...markings} {...specs} />
+            )
+          }
+          {
+            markings && (
+              <GripMarkings
+                {...specs}
+                gripCenterCoords={markings.gripCenterCoords!}
+                midlineCoords={markings.midlineCoords!}
+              />
+            )
+          } */}
+        </Ball>
+      </group>
+      {/* <OrthographicCamera
+        makeDefault
+        left={(frustumSize * aspectRatio) / -2}
+        right={(frustumSize * aspectRatio) / 2}
+        top={frustumSize / 2}
+        bottom={frustumSize / -2}
+        // near={0.1}
+        // far={100}
+        position={[0, 0, 5]}
+      /> */}
+    </>
   );
 }
 
 export default function Home(): ReactElement {
   const pinCoords = PIN_COORDS;
 
-  const [aspectRatio, setAspectRatio] = useState(0);
   const [specs, setSpecs] = useState<BallSpecs & BowlerSpecs & Layout>({
     ...BALL_SPECS, ...BOWLER_SPECS, ...LAYOUT
   });
@@ -201,12 +244,6 @@ export default function Home(): ReactElement {
   };
 
   useEffect(() => {
-    if (window) {
-      setAspectRatio(window.innerWidth / (window.innerHeight * 0.8));
-    }
-  }, []);
-
-  useEffect(() => {
     calcLayout();
   }, [specs]);
 
@@ -214,15 +251,9 @@ export default function Home(): ReactElement {
     <div className={styles.container}>
       <InputForm onChange={handleChange} values={specs} />
       <div className={styles.canvas}>
-        <Canvas>
-          <PerspectiveCamera
-            makeDefault
-            args={[50, aspectRatio, 1, 1000]}
-            position={[0, 0, 11]}
-          />
+        <Canvas orthographic camera={{ zoom: 60 }}>
           <ambientLight />
           <CanvasContent markings={markings!} specs={specs} />
-          <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
         </Canvas>
       </div>
       <Notes />

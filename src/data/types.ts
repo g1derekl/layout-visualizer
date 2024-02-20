@@ -13,6 +13,12 @@ export type BowlerSpecs = {
   thumbSize: number | null;
 }
 
+export type BowlerStats = {
+  axisTilt: number;
+  axisRotation: number;
+  revRate: number
+}
+
 export type BallSpecs = {
   pinDistance: number;
   asymm: false;

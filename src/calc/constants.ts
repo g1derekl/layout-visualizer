@@ -1,5 +1,10 @@
 import { Vector3 } from 'three';
-import { BallSpecs, BowlerSpecs, Layout } from '../data/types';
+import {
+  BallSpecs,
+  BowlerSpecs,
+  BowlerStats,
+  Layout
+} from '../data/types';
 
 export const PIN_COORDS = new Vector3(0, 0, 4.25);
 
@@ -23,6 +28,12 @@ export const BOWLER_SPECS: BowlerSpecs = {
   leftFingerSize: 31 / 32,
   rightFingerSize: 31 / 32,
   thumbSize: 1 + 1 / 4
+};
+
+export const BOWLER_STATS: BowlerStats = {
+  axisTilt: 20,
+  axisRotation: 35,
+  revRate: 300
 };
 
 export const LAYOUT: Layout = {
