@@ -1,13 +1,20 @@
 import React, {
   ReactElement,
   useEffect,
+  useRef,
   useState
 } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import {
   PerspectiveCamera,
   ArcballControls
 } from '@react-three/drei';
+import {
+  Group,
+  Matrix4,
+  Quaternion,
+  Vector3
+} from 'three';
 
 import {
   InputChange,
@@ -40,6 +47,80 @@ import {
 import styles from '../styles/Home.module.css';
 import Annotations from '../src/modules/annotations';
 import Notes from '../src/components/notes';
+import { degreesToRadians } from '../src/calc/trig';
+
+const AXIS_TILT = 20;
+const AXIS_ROTATION = 35;
+const REV_RATE = 300;
+const ANIMATE = false;
+
+type ContentProps = {
+  markings: Markings;
+  specs: BallSpecs & BowlerSpecs & Layout
+}
+
+function CanvasContent({
+  markings,
+  specs
+}: ContentProps): ReactElement {
+  const group = useRef<Group>(null);
+
+  // Using the player's inputted axis rotation and tilt, rotate the ball
+  // so that the player's PAP is facing the correct point relative to the camera.
+  useEffect(() => {
+    const { papCoords } = markings;
+    const cameraPoint = new Vector3(0, 0, 1);
+    const normalizedCoords = papCoords.clone().normalize();
+    const q = new Quaternion();
+    q.setFromUnitVectors(normalizedCoords, cameraPoint);
+    group.current!.applyMatrix4(new Matrix4().makeRotationFromQuaternion(q));
+  }, []);
+
+  useEffect(() => {
+    group.current!.rotateOnWorldAxis(new Vector3(0, 1, 0), degreesToRadians(AXIS_ROTATION));
+    group.current!.rotateOnWorldAxis(new Vector3(1, 0, 0), degreesToRadians(-1 * AXIS_TILT));
+  }, [AXIS_TILT, AXIS_ROTATION]);
+
+  useFrame((state, delta) => {
+    if (ANIMATE) {
+      // Rotate ball around PAP
+      const rpm = -1 * ((2 * Math.PI) * (delta / 60));
+      group.current!.rotateOnAxis(markings.papCoords.normalize(), rpm * REV_RATE);
+    }
+  });
+
+  return (
+    <group ref={group}>
+      <Ball>
+        {/* <Line points={[[0, 0, 0], [1, 1, 0]]} /> */}
+        {
+          markings && (
+            <BallMarkings {...markings} />
+          )
+        }
+        {
+          markings && (
+            <LayoutMarkings {...markings} />
+          )
+        }
+        {
+          markings && (
+            <Annotations {...markings} {...specs} />
+          )
+        }
+        {
+          markings && (
+            <GripMarkings
+              {...specs}
+              gripCenterCoords={markings.gripCenterCoords!}
+              midlineCoords={markings.midlineCoords!}
+            />
+          )
+        }
+      </Ball>
+    </group>
+  );
+}
 
 export default function Home(): ReactElement {
   const pinCoords = PIN_COORDS;
@@ -140,32 +221,7 @@ export default function Home(): ReactElement {
             position={[0, 0, 11]}
           />
           <ambientLight />
-          <Ball>
-            {
-              markings && (
-                <BallMarkings {...markings} />
-              )
-            }
-            {
-              markings && (
-                <LayoutMarkings {...markings} />
-              )
-            }
-            {
-              markings && (
-                <Annotations {...markings} {...specs} />
-              )
-            }
-            {
-              markings && (
-                <GripMarkings
-                  {...specs}
-                  gripCenterCoords={markings.gripCenterCoords!}
-                  midlineCoords={markings.midlineCoords!}
-                />
-              )
-            }
-          </Ball>
+          <CanvasContent markings={markings!} specs={specs} />
           <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
         </Canvas>
       </div>

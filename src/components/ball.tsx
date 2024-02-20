@@ -18,7 +18,9 @@ export default function Ball({
   return (
     <Sphere {...props} args={ballCoords.toArray()} scale={1}>
       { SHOW_EDGES && <Edges scale={1} threshold={0} color="gray" /> }
-      <meshBasicMaterial opacity={1} color="white" />
+      {/* <meshBasicMaterial color="white" /> */}
+      <meshStandardMaterial wireframe />
+      <axesHelper args={[2]} />
       {props.children}
     </Sphere>
   );

@@ -19,3 +19,12 @@ export function getArcAngle(arcLength: number, radius: number = RADIUS) {
 export function degreesToRadians(degrees: number) {
   return degrees * (Math.PI / 180);
 }
+
+/**
+ * Convert the given angle from radians to degrees
+ * @param radians - an angle in radians
+ * @returns the angle in degrees
+ */
+export function radiansToDegrees(radians: number) {
+  return radians * (180 / Math.PI);
+}
