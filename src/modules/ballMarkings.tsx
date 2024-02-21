@@ -1,5 +1,5 @@
 import React, {
-  ReactElement,
+  ReactElement
 } from 'react';
 import { Vector3 } from 'three';
 

@@ -6,6 +6,7 @@ import {
 } from 'three';
 import React, {
   ReactElement,
+  useContext,
   useEffect,
   useRef
 } from 'react';
@@ -17,6 +18,7 @@ import {
   useTexture
 } from '@react-three/drei';
 import { calcBearing, calcPoint, normalizeBearing } from '../calc/geod';
+import { GroupContext } from '../../pages';
 
 const LABEL_STYLE = {
   font: '1.25rem sans-serif',
@@ -70,10 +72,13 @@ function createCircleTexture(color: string = 'black'): string {
 
 export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): ReactElement {
   const meshRef = useRef<Mesh>(null!);
+  const group = useContext(GroupContext);
 
   const { color, text, radius } = props as MarkerProps;
   const texture = useTexture(createCircleTexture(color));
   const { position } = props as JSX.IntrinsicElements['mesh'];
+
+  const positionWorld = group.localToWorld((position as Vector3).clone());
 
   useEffect(() => {
     if (meshRef.current) {
@@ -88,7 +93,7 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
   return (
     <>
       <Decal
-        position={position}
+        position={positionWorld}
         scale={radius ? radius * 2 : 1}
         map={texture}
         ref={meshRef}

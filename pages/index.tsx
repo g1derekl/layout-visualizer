@@ -1,5 +1,6 @@
 import React, {
   ReactElement,
+  createContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -53,53 +54,48 @@ import Notes from '../src/components/notes';
 import { degreesToRadians } from '../src/calc/trig';
 
 const AXIS_TILT = 0;
-const AXIS_ROTATION = 0;
-const REV_RATE = 60;
-const ANIMATE = false;
+const AXIS_ROTATION = 80;
+const REV_RATE = 10;
+const ANIMATE = true;
 
 type ContentProps = {
   markings: Markings;
   specs: BallSpecs & BowlerSpecs & Layout;
 }
 
+export const GroupContext = createContext(new Group());
+
 function CanvasContent({
   markings,
   specs
 }: ContentProps): ReactElement {
-  const group = useRef<Group>(null);
+  const group = useRef(new Group());
 
-  const [aspectRatio, setAspectRatio] = useState(0);
+  const [papAligned, setPapAligned] = useState(false);
 
-  const foo = 'bar';
+  const { papCoords } = markings;
 
   useEffect(() => {
-    const { papCoords } = markings;
-    // const cameraPoint = new Vector3(0, 0, 1);
     const cameraPoint = group.current!.getWorldDirection(new Vector3(0, 0, 0))
       .multiply(new Vector3(-1, -1, 1));
     const normalizedCoords = papCoords.clone().normalize();
     const q = new Quaternion();
-    console.log(normalizedCoords, cameraPoint, '============');
     q.setFromUnitVectors(normalizedCoords, cameraPoint);
     group.current!.applyMatrix4(new Matrix4().makeRotationFromQuaternion(q));
-    // group.current!.rotateOnWorldAxis(
-    //   new Vector3(0, 1, 0),
-    //   (Math.PI / 2) - degreesToRadians(AXIS_ROTATION)
-    // );
-    // group.current!.rotateOnWorldAxis(new Vector3(1, 0, 0), degreesToRadians(-1 * AXIS_TILT));
-  }, [AXIS_TILT, AXIS_ROTATION]);
+    group.current!.rotateOnWorldAxis(
+      new Vector3(0, 1, 0),
+      -1 * (Math.PI / 2) + degreesToRadians(AXIS_ROTATION)
+    );
+    group.current!.rotateOnWorldAxis(new Vector3(1, 0, 0), degreesToRadians(-1 * AXIS_TILT));
+    setPapAligned(true);
+  }, [markings, specs, AXIS_TILT, AXIS_ROTATION]);
 
-  // useFrame((state, delta) => {
-  //   if (ANIMATE) {
-  //     // Rotate ball around PAP
-  //     const rpm = -1 * ((2 * Math.PI) * (delta / 60));
-  //     group.current!.rotateOnAxis(markings.papCoords.normalize(), rpm * REV_RATE);
-  //   }
-  // });
-
-  useThree((state) => {
-    if (aspectRatio !== state.size.width / state.size.height) {
-      setAspectRatio(state.size.width / state.size.height);
+  useFrame((state, delta) => {
+    if (ANIMATE && papAligned) {
+      debugger;
+      // Rotate ball around PAP
+      const rpm = -1 * ((2 * Math.PI) * (delta / 60));
+      group.current!.rotateOnAxis(papCoords.clone().normalize(), rpm * REV_RATE * -1);
     }
   });
 
@@ -107,61 +103,29 @@ function CanvasContent({
     <>
       <ArcballControls target={[0, 0, 0]} enableZoom={false} enablePan={false} />
       <group ref={group}>
-        <Ball>
-          <Line
-            points={[markings.papCoords.clone().negate(), markings.papCoords]}
-            segments={false}
-          />
-          {
-            markings && (
-              <>
-                <BallMarkings {...markings} />
-                <LayoutMarkings {...markings} />
-                <Annotations {...markings} {...specs} />
-                <GripMarkings
-                  {...specs}
-                  gripCenterCoords={markings.gripCenterCoords!}
-                  midlineCoords={markings.midlineCoords!}
-                />
-              </>
-            )
-          }
-          {/* {
-            markings && (
-              <BallMarkings {...markings} />
-            )
-          }
-          {
-            markings && (
-              <LayoutMarkings {...markings} />
-            )
-          }
-          {
-            markings && (
-              <Annotations {...markings} {...specs} />
-            )
-          }
-          {
-            markings && (
-              <GripMarkings
-                {...specs}
-                gripCenterCoords={markings.gripCenterCoords!}
-                midlineCoords={markings.midlineCoords!}
-              />
-            )
-          } */}
-        </Ball>
+        <GroupContext.Provider value={group.current}>
+          <Ball>
+            <Line
+              points={[markings.papCoords.clone().negate(), markings.papCoords]}
+              segments={false}
+            />
+            {
+              markings && (
+                <>
+                  <BallMarkings {...markings} />
+                  <LayoutMarkings {...markings} />
+                  <Annotations {...markings} {...specs} />
+                  <GripMarkings
+                    {...specs}
+                    gripCenterCoords={markings.gripCenterCoords!}
+                    midlineCoords={markings.midlineCoords!}
+                  />
+                </>
+              )
+            }
+          </Ball>
+        </GroupContext.Provider>
       </group>
-      {/* <OrthographicCamera
-        makeDefault
-        left={(frustumSize * aspectRatio) / -2}
-        right={(frustumSize * aspectRatio) / 2}
-        top={frustumSize / 2}
-        bottom={frustumSize / -2}
-        // near={0.1}
-        // far={100}
-        position={[0, 0, 5]}
-      /> */}
     </>
   );
 }
