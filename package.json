@@ -15,6 +15,7 @@
     "fractions": "^1.0.2",
     "geodesy": "^2.4.0",
     "next": "^14.0.3",
+    "rc-slider": "^10.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "0.153.0",

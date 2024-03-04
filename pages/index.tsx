@@ -53,8 +53,8 @@ import Annotations from '../src/modules/annotations';
 import Notes from '../src/components/notes';
 import { degreesToRadians } from '../src/calc/trig';
 
-const AXIS_TILT = 45;
-const AXIS_ROTATION = 45;
+const AXIS_TILT = 90;
+const AXIS_ROTATION = 0;
 const REV_RATE = 10;
 const ANIMATE = false;
 
@@ -84,13 +84,16 @@ function CanvasContent({
       new Vector3(0, 1, 0),
       -1 * (Math.PI / 2) + degreesToRadians(AXIS_ROTATION)
     );
-    group.current!.rotateOnWorldAxis(new Vector3(1, 0, 0), degreesToRadians(-1 * AXIS_TILT));
+    const vertAxis = new Vector3(1, 0, 0).applyAxisAngle(
+      new Vector3(0, 1, 0),
+      degreesToRadians(-1 * (90 - AXIS_ROTATION))
+    );
+    group.current!.rotateOnWorldAxis(vertAxis, degreesToRadians(-1 * AXIS_TILT));
   }, [markings, specs, AXIS_TILT, AXIS_ROTATION]);
 
   useFrame((state, delta) => {
     const { clock } = state;
     if (ANIMATE && clock.getElapsedTime() > 1) {
-      // debugger;
       // Rotate ball around PAP
       const rpm = -1 * ((2 * Math.PI) * (delta / 60));
       group.current!.rotateOnAxis(papCoords.clone().normalize(), rpm * REV_RATE * -1);
@@ -112,7 +115,7 @@ function CanvasContent({
                 <>
                   <BallMarkings {...markings} />
                   <LayoutMarkings {...markings} />
-                  <Annotations {...markings} {...specs} />
+                  {/* <Annotations {...markings} {...specs} /> */}
                   <GripMarkings
                     {...specs}
                     gripCenterCoords={markings.gripCenterCoords!}

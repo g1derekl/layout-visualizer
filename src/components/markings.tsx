@@ -80,8 +80,6 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
 
   const positionWorld = group.localToWorld((position as Vector3).clone());
 
-  console.log('2222222222222');
-
   useEffect(() => {
     if (meshRef.current) {
       meshRef.current.lookAt(0, 0, 0);
