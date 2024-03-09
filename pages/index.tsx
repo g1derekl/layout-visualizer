@@ -1,17 +1,15 @@
 import React, {
+  MutableRefObject,
   ReactElement,
   createContext,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState
 } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import {
-  PerspectiveCamera,
   ArcballControls,
-  Line,
-  OrthographicCamera
+  Line
 } from '@react-three/drei';
 import {
   Group,
@@ -29,6 +27,7 @@ import BallMarkings from '../src/modules/ballMarkings';
 import {
   BALL_SPECS,
   BOWLER_SPECS,
+  BOWLER_STATS,
   LAYOUT,
   PIN_COORDS
 } from '../src/calc/constants';
@@ -44,6 +43,7 @@ import {
 import {
   BallSpecs,
   BowlerSpecs,
+  BowlerStats,
   Layout,
   Markings
 } from '../src/data/types';
@@ -52,26 +52,28 @@ import styles from '../styles/Home.module.css';
 import Annotations from '../src/modules/annotations';
 import Notes from '../src/components/notes';
 import { degreesToRadians } from '../src/calc/trig';
-
-const AXIS_TILT = 90;
-const AXIS_ROTATION = 0;
-const REV_RATE = 10;
-const ANIMATE = false;
+import StatsSlider from '../src/components/controls';
 
 type ContentProps = {
   markings: Markings;
   specs: BallSpecs & BowlerSpecs & Layout;
+  stats: MutableRefObject<BowlerStats>;
+  animate: boolean;
 }
 
 export const GroupContext = createContext(new Group());
 
 function CanvasContent({
   markings,
-  specs
+  specs,
+  stats,
+  animate
 }: ContentProps): ReactElement {
   const group = useRef(new Group());
 
   const { papCoords } = markings;
+
+  // const statsPrev = usePrevious(stats.current);
 
   useEffect(() => {
     const cameraPoint = group.current!.getWorldDirection(new Vector3(0, 0, 0))
@@ -80,23 +82,69 @@ function CanvasContent({
     const q = new Quaternion();
     q.setFromUnitVectors(normalizedCoords, cameraPoint);
     group.current!.applyMatrix4(new Matrix4().makeRotationFromQuaternion(q));
+  }, [papCoords]);
+
+  const positionPap = (statsPrev?: BowlerStats) => {
+    const {
+      axisRotation,
+      axisTilt
+    } = stats.current;
+
+    let deltas: {
+      axisTilt: number;
+      axisRotation: number;
+    };
+
+    if (!statsPrev) {
+      deltas = {
+        axisTilt,
+        axisRotation: axisRotation - 90
+      };
+    } else {
+      deltas = {
+        axisTilt: axisTilt - statsPrev.axisTilt,
+        axisRotation: axisRotation - statsPrev.axisRotation
+      };
+    }
+
     group.current!.rotateOnWorldAxis(
       new Vector3(0, 1, 0),
-      -1 * (Math.PI / 2) + degreesToRadians(AXIS_ROTATION)
+      degreesToRadians(deltas.axisRotation)
     );
     const vertAxis = new Vector3(1, 0, 0).applyAxisAngle(
       new Vector3(0, 1, 0),
-      degreesToRadians(-1 * (90 - AXIS_ROTATION))
+      degreesToRadians(-1 * (90 - axisRotation))
     );
-    group.current!.rotateOnWorldAxis(vertAxis, degreesToRadians(-1 * AXIS_TILT));
-  }, [markings, specs, AXIS_TILT, AXIS_ROTATION]);
+    group.current!.rotateOnWorldAxis(vertAxis, degreesToRadians(-1 * deltas.axisTilt));
+  };
+
+  useEffect(() => {
+    positionPap();
+  }, []);
+
+  let statsPrev = { ...stats.current };
 
   useFrame((state, delta) => {
     const { clock } = state;
-    if (ANIMATE && clock.getElapsedTime() > 1) {
+    const {
+      axisRotation,
+      axisTilt,
+      revRate
+    } = stats.current;
+
+    if (
+      (axisRotation !== statsPrev.axisRotation
+      || axisTilt !== statsPrev.axisTilt)
+      && clock.getElapsedTime() > 1
+    ) {
+      positionPap(statsPrev);
+      statsPrev = { ...stats.current };
+    }
+
+    if (animate && clock.getElapsedTime() > 1) {
       // Rotate ball around PAP
       const rpm = -1 * ((2 * Math.PI) * (delta / 60));
-      group.current!.rotateOnAxis(papCoords.clone().normalize(), rpm * REV_RATE * -1);
+      group.current!.rotateOnAxis(papCoords.clone().normalize(), rpm * revRate * -1);
     }
   });
 
@@ -134,6 +182,8 @@ function CanvasContent({
 export default function Home(): ReactElement {
   const pinCoords = PIN_COORDS;
 
+  const statsRef = useRef(BOWLER_STATS);
+  // const updateStatsRef = useRef(() => null);
   const [specs, setSpecs] = useState<BallSpecs & BowlerSpecs & Layout>({
     ...BALL_SPECS, ...BOWLER_SPECS, ...LAYOUT
   });
@@ -215,10 +265,16 @@ export default function Home(): ReactElement {
   return (
     <div className={styles.container}>
       <InputForm onChange={handleChange} values={specs} />
+      <StatsSlider ref={statsRef} />
       <div className={styles.canvas}>
         <Canvas orthographic camera={{ zoom: 60 }}>
           <ambientLight />
-          <CanvasContent markings={markings!} specs={specs} />
+          <CanvasContent
+            markings={markings!}
+            specs={specs}
+            stats={statsRef}
+            animate={false}
+          />
         </Canvas>
       </div>
       <Notes />

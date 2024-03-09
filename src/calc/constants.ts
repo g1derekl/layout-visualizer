@@ -31,8 +31,8 @@ export const BOWLER_SPECS: BowlerSpecs = {
 };
 
 export const BOWLER_STATS: BowlerStats = {
-  axisTilt: 20,
-  axisRotation: 35,
+  axisTilt: 45,
+  axisRotation: 90,
   revRate: 300
 };
 

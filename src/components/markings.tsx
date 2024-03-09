@@ -8,7 +8,8 @@ import React, {
   ReactElement,
   useContext,
   useEffect,
-  useRef
+  useRef,
+  useState
 } from 'react';
 import {
   CatmullRomLine,
@@ -19,6 +20,7 @@ import {
 } from '@react-three/drei';
 import { calcBearing, calcPoint, normalizeBearing } from '../calc/geod';
 import { GroupContext } from '../../pages';
+import { usePrevious } from '../data/hooks';
 
 const LABEL_STYLE = {
   font: '1.25rem sans-serif',

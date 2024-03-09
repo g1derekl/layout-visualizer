@@ -18,6 +18,7 @@
     "rc-slider": "^10.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-slider": "^2.0.6",
     "three": "0.153.0",
     "three-stdlib": "^2.23.13",
     "troika-three-text": "^0.46.3"
