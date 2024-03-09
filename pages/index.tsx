@@ -58,7 +58,6 @@ type ContentProps = {
   markings: Markings;
   specs: BallSpecs & BowlerSpecs & Layout;
   stats: MutableRefObject<BowlerStats>;
-  animate: boolean;
 }
 
 export const GroupContext = createContext(new Group());
@@ -66,8 +65,7 @@ export const GroupContext = createContext(new Group());
 function CanvasContent({
   markings,
   specs,
-  stats,
-  animate
+  stats
 }: ContentProps): ReactElement {
   const group = useRef(new Group());
 
@@ -129,7 +127,8 @@ function CanvasContent({
     const {
       axisRotation,
       axisTilt,
-      revRate
+      revRate,
+      animate
     } = stats.current;
 
     if (
@@ -154,10 +153,6 @@ function CanvasContent({
       <group ref={group}>
         <GroupContext.Provider value={group.current}>
           <Ball>
-            <Line
-              points={[markings.papCoords.clone().negate(), markings.papCoords]}
-              segments={false}
-            />
             {
               markings && (
                 <>
@@ -265,7 +260,6 @@ export default function Home(): ReactElement {
   return (
     <div className={styles.container}>
       <InputForm onChange={handleChange} values={specs} />
-      <StatsSlider ref={statsRef} />
       <div className={styles.canvas}>
         <Canvas orthographic camera={{ zoom: 60 }}>
           <ambientLight />
@@ -273,9 +267,9 @@ export default function Home(): ReactElement {
             markings={markings!}
             specs={specs}
             stats={statsRef}
-            animate={false}
           />
         </Canvas>
+        <StatsSlider ref={statsRef} />
       </div>
       <Notes />
     </div>

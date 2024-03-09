@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/jsx-one-expression-per-line */
 import React, {
   ForwardedRef,
@@ -7,31 +8,40 @@ import React, {
   useState
 } from 'react';
 import Slider from 'rc-slider';
+
 import 'rc-slider/assets/index.css';
 
 import { BowlerStats } from '../data/types';
 import { BOWLER_STATS } from '../calc/constants';
 
-// type StatsSliderProps = {
-//   updateStats: () => void;
-// };
+import styles from '../../styles/Controls.module.css';
 
 const StatsSlider = forwardRef((props, ref: ForwardedRef<BowlerStats>): ReactElement => {
   const [stats, setStats] = useState(BOWLER_STATS);
-  // eslint-disable-next-line no-param-reassign, no-unused-vars
-  // ref = useRef<BowlerStats>(stats);
 
   const handleChange = (name: string, val: number) => {
-    setStats({
+    const newStats = {
       ...stats,
       [name]: val
-    });
+    };
+    setStats(newStats);
     // eslint-disable-next-line no-param-reassign
-    ref.current = stats;
+    (ref as MutableRefObject<BowlerStats>).current = newStats;
+  };
+
+  const handleAnimate = () => {
+    const newStats = {
+      ...stats,
+      animate: !stats.animate
+    };
+    setStats(newStats);
+
+    // eslint-disable-next-line no-param-reassign
+    (ref as MutableRefObject<BowlerStats>).current = newStats;
   };
 
   return (
-    <>
+    <div className={styles.sliderControls}>
       <div>
         <span>Axis Tilt: {stats.axisTilt}</span>
         <Slider
@@ -59,7 +69,12 @@ const StatsSlider = forwardRef((props, ref: ForwardedRef<BowlerStats>): ReactEle
           max={800}
         />
       </div>
-    </>
+      <div>
+        <button type="button" onClick={() => handleAnimate()}>
+          { stats.animate ? 'Stop' : 'Animate!' }
+        </button>
+      </div>
+    </div>
   );
 });
 
