@@ -20,7 +20,6 @@ import {
 } from '@react-three/drei';
 import { calcBearing, calcPoint, normalizeBearing } from '../calc/geod';
 import { GroupContext } from '../../pages';
-import { usePrevious } from '../data/hooks';
 
 const LABEL_STYLE = {
   font: '1.25rem sans-serif',
@@ -80,7 +79,12 @@ export function DotMark(props: JSX.IntrinsicElements['mesh'] | MarkerProps): Rea
   const texture = useTexture(createCircleTexture(color));
   const { position } = props as JSX.IntrinsicElements['mesh'];
 
-  const positionWorld = group.localToWorld((position as Vector3).clone());
+  const [positionWorld, setPositionWorld] = useState(position);
+
+  useEffect(() => {
+    console.log(group.localToWorld((position as Vector3).clone()), '=============', position);
+    setPositionWorld(group.localToWorld((position as Vector3).clone()));
+  }, [position]);
 
   useEffect(() => {
     if (meshRef.current) {

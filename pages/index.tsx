@@ -2,14 +2,14 @@ import React, {
   MutableRefObject,
   ReactElement,
   createContext,
+  useContext,
   useEffect,
   useRef,
   useState
 } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import {
-  ArcballControls,
-  Line
+  ArcballControls
 } from '@react-three/drei';
 import {
   Group,
@@ -29,7 +29,8 @@ import {
   BOWLER_SPECS,
   BOWLER_STATS,
   LAYOUT,
-  PIN_COORDS
+  PIN_COORDS,
+  ViewMode
 } from '../src/calc/constants';
 import LayoutMarkings from '../src/modules/layoutMarkings';
 import GripMarkings from '../src/modules/gripMarkings';
@@ -61,6 +62,7 @@ type ContentProps = {
 }
 
 export const GroupContext = createContext(new Group());
+export const ViewContext = createContext(ViewMode.LAYOUT);
 
 function CanvasContent({
   markings,
@@ -68,19 +70,18 @@ function CanvasContent({
   stats
 }: ContentProps): ReactElement {
   const group = useRef(new Group());
+  const viewMode = useContext(ViewContext);
 
   const { papCoords } = markings;
 
-  // const statsPrev = usePrevious(stats.current);
-
-  useEffect(() => {
+  const focusPap = () => {
     const cameraPoint = group.current!.getWorldDirection(new Vector3(0, 0, 0))
       .multiply(new Vector3(-1, -1, 1));
     const normalizedCoords = papCoords.clone().normalize();
     const q = new Quaternion();
     q.setFromUnitVectors(normalizedCoords, cameraPoint);
     group.current!.applyMatrix4(new Matrix4().makeRotationFromQuaternion(q));
-  }, [papCoords]);
+  };
 
   const positionPap = (statsPrev?: BowlerStats) => {
     const {
@@ -116,10 +117,6 @@ function CanvasContent({
     group.current!.rotateOnWorldAxis(vertAxis, degreesToRadians(-1 * deltas.axisTilt));
   };
 
-  useEffect(() => {
-    positionPap();
-  }, []);
-
   let statsPrev = { ...stats.current };
 
   useFrame((state, delta) => {
@@ -127,8 +124,7 @@ function CanvasContent({
     const {
       axisRotation,
       axisTilt,
-      revRate,
-      animate
+      revRate
     } = stats.current;
 
     if (
@@ -140,7 +136,7 @@ function CanvasContent({
       statsPrev = { ...stats.current };
     }
 
-    if (animate && clock.getElapsedTime() > 1) {
+    if (viewMode === ViewMode.ROTATION && clock.getElapsedTime() > 1) {
       // Rotate ball around PAP
       const rpm = -1 * ((2 * Math.PI) * (delta / 60));
       group.current!.rotateOnAxis(papCoords.clone().normalize(), rpm * revRate * -1);
@@ -158,7 +154,7 @@ function CanvasContent({
                 <>
                   <BallMarkings {...markings} />
                   <LayoutMarkings {...markings} />
-                  {/* <Annotations {...markings} {...specs} /> */}
+                  <Annotations {...markings} {...specs} />
                   <GripMarkings
                     {...specs}
                     gripCenterCoords={markings.gripCenterCoords!}
@@ -183,6 +179,7 @@ export default function Home(): ReactElement {
     ...BALL_SPECS, ...BOWLER_SPECS, ...LAYOUT
   });
   const [markings, setMarkings] = useState<Markings>();
+  const [viewMode, setViewMode] = useState(ViewMode.LAYOUT);
 
   const calcLayout = (): void => {
     // Find the location of the CG in relation to the pin
@@ -253,6 +250,14 @@ export default function Home(): ReactElement {
     }
   };
 
+  const toggleAnimate = (): void => {
+    if (viewMode === ViewMode.LAYOUT) {
+      setViewMode(ViewMode.ROTATION);
+    } else {
+      setViewMode(ViewMode.LAYOUT);
+    }
+  };
+
   useEffect(() => {
     calcLayout();
   }, [specs]);
@@ -261,15 +266,17 @@ export default function Home(): ReactElement {
     <div className={styles.container}>
       <InputForm onChange={handleChange} values={specs} />
       <div className={styles.canvas}>
-        <Canvas orthographic camera={{ zoom: 60 }}>
-          <ambientLight />
-          <CanvasContent
-            markings={markings!}
-            specs={specs}
-            stats={statsRef}
-          />
-        </Canvas>
-        <StatsSlider ref={statsRef} />
+        <ViewContext.Provider value={viewMode}>
+          <Canvas orthographic camera={{ zoom: 60 }}>
+            <ambientLight />
+            <CanvasContent
+              markings={markings!}
+              specs={specs}
+              stats={statsRef}
+            />
+          </Canvas>
+          <StatsSlider ref={statsRef} toggleAnimate={toggleAnimate} />
+        </ViewContext.Provider>
       </div>
       <Notes />
     </div>

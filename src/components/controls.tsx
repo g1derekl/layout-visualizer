@@ -5,6 +5,7 @@ import React, {
   MutableRefObject,
   ReactElement,
   forwardRef,
+  useContext,
   useState
 } from 'react';
 import Slider from 'rc-slider';
@@ -12,12 +13,20 @@ import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
 import { BowlerStats } from '../data/types';
-import { BOWLER_STATS } from '../calc/constants';
+import { BOWLER_STATS, ViewMode } from '../calc/constants';
 
 import styles from '../../styles/Controls.module.css';
+import { ViewContext } from '../../pages';
 
-const StatsSlider = forwardRef((props, ref: ForwardedRef<BowlerStats>): ReactElement => {
+type StatsSliderProps = {
+  toggleAnimate: () => void;
+};
+
+const StatsSlider = forwardRef(({
+  toggleAnimate
+}: StatsSliderProps, ref: ForwardedRef<BowlerStats>): ReactElement => {
   const [stats, setStats] = useState(BOWLER_STATS);
+  const viewMode = useContext(ViewContext);
 
   const handleChange = (name: string, val: number) => {
     const newStats = {
@@ -30,14 +39,7 @@ const StatsSlider = forwardRef((props, ref: ForwardedRef<BowlerStats>): ReactEle
   };
 
   const handleAnimate = () => {
-    const newStats = {
-      ...stats,
-      animate: !stats.animate
-    };
-    setStats(newStats);
-
-    // eslint-disable-next-line no-param-reassign
-    (ref as MutableRefObject<BowlerStats>).current = newStats;
+    toggleAnimate();
   };
 
   return (
@@ -71,7 +73,7 @@ const StatsSlider = forwardRef((props, ref: ForwardedRef<BowlerStats>): ReactEle
       </div>
       <div>
         <button type="button" onClick={() => handleAnimate()}>
-          { stats.animate ? 'Stop' : 'Animate!' }
+          { viewMode === ViewMode.ROTATION ? 'Stop' : 'Animate!' }
         </button>
       </div>
     </div>

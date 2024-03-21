@@ -41,3 +41,8 @@ export const LAYOUT: Layout = {
   pinToPapDistance: 3.5,
   valAngle: 45
 };
+
+export enum ViewMode {
+  LAYOUT = 'layout',
+  ROTATION = 'rotation'
+}

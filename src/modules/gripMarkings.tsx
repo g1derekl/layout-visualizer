@@ -1,5 +1,5 @@
 import React, {
-  ReactElement,
+  ReactElement, useEffect, useState,
 } from 'react';
 import { Vector3 } from 'three';
 import {
@@ -61,6 +61,14 @@ function CenterLine({ bridgeCenterCoords, thumbEdgeCoords }: CenterLineProps): R
   return <LineMark pointStart={bridgeCenterCoords} pointEnd={thumbEdgeCoords} direction="counterclockwise" color="black" />;
 }
 
+type MarkingsCoords = {
+  leftFingerCoords: Vector3;
+  rightFingerCoords: Vector3;
+  bridgeCenterCoords: Vector3 | null;
+  thumbEdgeCoords: Vector3 | null;
+  thumbCenterCoords: Vector3 | null;
+}
+
 export default function GripMarkings({
   gripCenterCoords,
   midlineCoords,
@@ -73,91 +81,116 @@ export default function GripMarkings({
   thumbSize,
   leftHanded
 }: GripMarkingsProps): ReactElement {
-  let leftFingerCoords: Vector3;
-  let rightFingerCoords: Vector3;
-  let bridgeCenterCoords: Vector3 | null = null;
-  let thumbEdgeCoords: Vector3 | null = null;
-  let thumbCenterCoords: Vector3 | null = null;
+  const [
+    markingsCoords,
+    setMarkingsCoords
+  ] = useState<MarkingsCoords>();
 
-  if (thumbHole) {
-    ({
+  useEffect(() => {
+    let leftFingerCoords: Vector3;
+    let rightFingerCoords: Vector3;
+    let bridgeCenterCoords: Vector3 | null = null;
+    let thumbEdgeCoords: Vector3 | null = null;
+    let thumbCenterCoords: Vector3 | null = null;
+
+    if (thumbHole) {
+      ({
+        bridgeCenterCoords,
+        thumbEdgeCoords,
+        thumbCenterCoords
+      } = getCenterLineEndpointsWithThumbhole(
+        gripCenterCoords,
+        midlineCoords,
+        leftSpan,
+        rightSpan,
+        leftFingerSize,
+        rightFingerSize,
+        thumbSize!,
+        leftHanded
+      ));
+
+      leftFingerCoords = getFingerCoordsWithThumbhole(
+        bridgeCenterCoords,
+        thumbCenterCoords,
+        leftSpan,
+        leftFingerSize,
+        thumbSize!,
+        bridge,
+        'left'
+      );
+      rightFingerCoords = getFingerCoordsWithThumbhole(
+        bridgeCenterCoords,
+        thumbCenterCoords,
+        rightSpan,
+        rightFingerSize,
+        thumbSize!,
+        bridge,
+        'right'
+      );
+    } else {
+      leftFingerCoords = getFingerCoordsWithoutThumbhole(
+        gripCenterCoords,
+        midlineCoords,
+        leftFingerSize,
+        bridge,
+        leftHanded,
+        'left'
+      );
+      rightFingerCoords = getFingerCoordsWithoutThumbhole(
+        gripCenterCoords,
+        midlineCoords,
+        leftFingerSize,
+        bridge,
+        leftHanded,
+        'right'
+      );
+    }
+
+    setMarkingsCoords({
+      leftFingerCoords,
+      rightFingerCoords,
       bridgeCenterCoords,
       thumbEdgeCoords,
       thumbCenterCoords
-    } = getCenterLineEndpointsWithThumbhole(
-      gripCenterCoords,
-      midlineCoords,
-      leftSpan,
-      rightSpan,
-      leftFingerSize,
-      rightFingerSize,
-      thumbSize!,
-      leftHanded
-    ));
-
-    leftFingerCoords = getFingerCoordsWithThumbhole(
-      bridgeCenterCoords,
-      thumbCenterCoords,
-      leftSpan,
-      leftFingerSize,
-      thumbSize!,
-      bridge,
-      'left'
-    );
-    rightFingerCoords = getFingerCoordsWithThumbhole(
-      bridgeCenterCoords,
-      thumbCenterCoords,
-      rightSpan,
-      rightFingerSize,
-      thumbSize!,
-      bridge,
-      'right'
-    );
-  } else {
-    leftFingerCoords = getFingerCoordsWithoutThumbhole(
-      gripCenterCoords,
-      midlineCoords,
-      leftFingerSize,
-      bridge,
-      leftHanded,
-      'left'
-    );
-    rightFingerCoords = getFingerCoordsWithoutThumbhole(
-      gripCenterCoords,
-      midlineCoords,
-      leftFingerSize,
-      bridge,
-      leftHanded,
-      'right'
-    );
-  }
-
-  const fingerHoleCoords = {
-    leftFingerCoords,
-    rightFingerCoords
-  };
+    });
+  }, [
+    gripCenterCoords,
+    midlineCoords,
+    leftSpan,
+    rightSpan,
+    leftFingerSize,
+    rightFingerSize,
+    bridge,
+    thumbHole,
+    thumbSize,
+    leftHanded
+  ]);
 
   return (
     <>
       {
-        bridgeCenterCoords && thumbEdgeCoords && (
+        markingsCoords && markingsCoords.bridgeCenterCoords && markingsCoords.thumbEdgeCoords && (
           <CenterLine
-            bridgeCenterCoords={bridgeCenterCoords}
-            thumbEdgeCoords={thumbEdgeCoords}
+            bridgeCenterCoords={markingsCoords.bridgeCenterCoords}
+            thumbEdgeCoords={markingsCoords.thumbEdgeCoords}
           />
         )
       }
       {
-        fingerHoleCoords && (
+        markingsCoords && markingsCoords.leftFingerCoords && markingsCoords.rightFingerCoords && (
           <FingerHoles
             leftFingerSize={leftFingerSize!}
             rightFingerSize={rightFingerSize!}
-            {...fingerHoleCoords}
+            leftFingerCoords={markingsCoords.leftFingerCoords}
+            rightFingerCoords={markingsCoords.rightFingerCoords}
           />
         )
       }
       {
-        thumbHole && thumbCenterCoords && <ThumbHole coords={thumbCenterCoords} size={thumbSize!} />
+        thumbHole
+        && markingsCoords
+        && markingsCoords.thumbCenterCoords
+        && <ThumbHole coords={markingsCoords.thumbCenterCoords} size={thumbSize!} />
       }
     </>
   );

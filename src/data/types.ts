@@ -17,7 +17,6 @@ export type BowlerStats = {
   axisTilt: number;
   axisRotation: number;
   revRate: number;
-  animate?: boolean;
 }
 
 export type BallSpecs = {
